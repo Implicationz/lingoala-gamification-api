@@ -1,20 +1,18 @@
-package com.lingosphinx.gamification.domain;
+package com.lingosphinx.gamification.dto;
 
+import com.lingosphinx.gamification.domain.RenewalType;
 import jakarta.persistence.*;
 import lombok.*;
 
-@Embeddable
 @Builder
 @RequiredArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
-public class Streak {
+public class StreakDto {
 
-    @Enumerated(EnumType.STRING)
+    private Long id;
+    @Builder.Default
     private RenewalType renewalType = RenewalType.NEVER;
     private long duration;
-
-    public void advance() {
-    }
 }

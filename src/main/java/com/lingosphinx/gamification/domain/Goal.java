@@ -14,18 +14,26 @@ import java.util.Objects;
 @Getter
 @Setter
 @Entity
+@Table(
+        uniqueConstraints = @UniqueConstraint(columnNames = {"definition_id", "user_id"}),
+        indexes = {
+                @Index(name = "idx_goal_user_id", columnList = "user_id")
+        }
+)
 public class Goal {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "definition_id")
     private GoalDefinition definition;
 
-    @ManyToOne
+    @ManyToOne(optional = true)
     private Goal parent;
 
+    @Column(name="user_id")
     private String userId = "";
 
     @Builder.Default
