@@ -10,4 +10,6 @@ public interface HabitService {
     List<HabitDto> readAll();
     HabitDto update(Long id, HabitDto habit);
     void delete(Long id);
+
+    void resetAll();
 }

@@ -1,8 +1,12 @@
 package com.lingosphinx.gamification.service;
 
+import com.lingosphinx.gamification.domain.Habit;
+import com.lingosphinx.gamification.domain.ProgressValue;
+import com.lingosphinx.gamification.domain.RenewalType;
 import com.lingosphinx.gamification.dto.HabitDto;
 import com.lingosphinx.gamification.mapper.HabitMapper;
 import com.lingosphinx.gamification.repository.HabitRepository;
+import com.lingosphinx.gamification.repository.HabitSpecifications;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -61,5 +65,20 @@ public class HabitServiceImpl implements HabitService {
     public void delete(Long id) {
         habitRepository.deleteById(id);
         log.info("Habit deleted successfully: id={}", id);
+    }
+
+    public void reset(Habit habit) {
+        habit.getStreak().setDuration(0L);
+        habit.getGoal().setProgress(ProgressValue.ZERO);
+        habitRepository.save(habit);
+        log.info("Habit streak reset: id={}", habit.getId());
+
+    }
+
+    @Override
+    public void resetAll() {
+        var spec = HabitSpecifications.due();
+        var habits = habitRepository.findAll(spec);
+        habits.forEach(this::reset);
     }
 }

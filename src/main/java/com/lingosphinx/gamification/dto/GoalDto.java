@@ -12,7 +12,6 @@ public class GoalDto {
     private GoalDto parent;
     private String userId;
     private ProgressValue progress;
-    private Instant lastRenewal;
     private Instant lastProgress;
     private List<GoalDto> children;
 }

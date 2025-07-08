@@ -23,7 +23,7 @@ import java.util.Objects;
 public class Goal {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
     @ManyToOne(optional = false)
@@ -39,8 +39,6 @@ public class Goal {
     @Builder.Default
     private ProgressValue progress = ProgressValue.valueOf(0);
 
-    @Builder.Default
-    private Instant lastRenewal = Instant.EPOCH;
     @Builder.Default
     private Instant lastProgress = Instant.EPOCH;
 

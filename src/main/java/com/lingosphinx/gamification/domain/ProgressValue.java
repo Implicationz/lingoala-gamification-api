@@ -11,6 +11,9 @@ import lombok.*;
 @JsonSerialize(using = ProgressValueSerializer.class)
 @JsonDeserialize(using = ProgressValueDeserializer.class)
 public class ProgressValue {
+
+    public static final ProgressValue ZERO = ProgressValue.valueOf(0);
+
     long value;
 
     public static ProgressValue valueOf(long value) {
