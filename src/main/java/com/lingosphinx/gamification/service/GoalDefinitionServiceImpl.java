@@ -3,6 +3,7 @@ package com.lingosphinx.gamification.service;
 import com.lingosphinx.gamification.dto.GoalDefinitionDto;
 import com.lingosphinx.gamification.mapper.GoalDefinitionMapper;
 import com.lingosphinx.gamification.repository.GoalDefinitionRepository;
+import com.lingosphinx.gamification.repository.GoalDefinitionSpecifications;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -62,5 +63,15 @@ public class GoalDefinitionServiceImpl implements GoalDefinitionService {
     public void delete(Long id) {
         goalDefinitionRepository.deleteById(id);
         log.info("GoalDefinition deleted successfully: id={}", id);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public GoalDefinitionDto readByTypeNameAndReference(String type, String reference) {
+        var spec = GoalDefinitionSpecifications.byTypeNameAndReference(type, reference);
+        var goalDefinition = goalDefinitionRepository.findOne(spec)
+                .orElseThrow(() -> new EntityNotFoundException("GoalDefinition not found for type=" + type + " and reference=" + reference));
+        log.info("GoalDefinition read by type and reference: type={}, reference={}, id={}", type, reference, goalDefinition.getId());
+        return goalDefinitionMapper.toDto(goalDefinition);
     }
 }

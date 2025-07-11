@@ -54,7 +54,7 @@ public class Goal {
         return 0;
     }
 
-    public String getType() {
+    public GoalType getType() {
         return definition.getType();
     }
 

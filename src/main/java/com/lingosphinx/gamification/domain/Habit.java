@@ -15,8 +15,12 @@ public class Habit {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
-    @ManyToOne(optional = false)
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "goal_id", unique = true)
     private Goal goal;
-    @Embedded
-    private Streak streak;
+
+    @Builder.Default
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "streak_id", unique = true)
+    private Streak streak = new Streak();
 }

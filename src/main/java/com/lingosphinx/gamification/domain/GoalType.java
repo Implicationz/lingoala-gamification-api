@@ -9,7 +9,7 @@ import lombok.*;
 @AllArgsConstructor
 @Getter
 @Setter
-public class GoalZone {
+public class GoalType {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)

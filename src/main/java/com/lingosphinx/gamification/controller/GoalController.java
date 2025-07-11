@@ -29,8 +29,16 @@ public class GoalController {
         return ResponseEntity.ok(goalService.readById(id));
     }
 
+    @GetMapping("/{type}/{reference}")
+    public ResponseEntity<GoalDto> readByTypeAndReference(@PathVariable String type, @PathVariable String reference) {
+        return ResponseEntity.ok(goalService.readByTypeNameAndReference(type, reference));
+    }
+
     @GetMapping
-    public ResponseEntity<List<GoalDto>> readAll() {
+    public ResponseEntity<List<GoalDto>> readAll(@RequestParam(required=false) String zone, @RequestParam(required=false) String type) {
+        if(zone != null && type != null) {
+            return ResponseEntity.ok(goalService.readAllByZoneNameAndTypeName(zone, type));
+        }
         return ResponseEntity.ok(goalService.readAll());
     }
 

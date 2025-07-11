@@ -29,6 +29,11 @@ public class GoalDefinitionController {
         return ResponseEntity.ok(goalDefinitionService.readById(id));
     }
 
+    @GetMapping("/{type}/{reference}")
+    public ResponseEntity<GoalDefinitionDto> readByTypeAndReference(@PathVariable String type, @PathVariable String reference) {
+        return ResponseEntity.ok(goalDefinitionService.readByTypeNameAndReference(type, reference));
+    }
+
     @GetMapping
     public ResponseEntity<List<GoalDefinitionDto>> readAll() {
         return ResponseEntity.ok(goalDefinitionService.readAll());

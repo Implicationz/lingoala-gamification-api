@@ -1,5 +1,6 @@
 package com.lingosphinx.gamification.repository;
 
+import com.lingosphinx.gamification.domain.Goal;
 import com.lingosphinx.gamification.domain.Habit;
 import com.lingosphinx.gamification.domain.RenewalType;
 import org.springframework.data.jpa.domain.Specification;
@@ -11,6 +12,17 @@ import java.time.temporal.ChronoUnit;
 import java.time.temporal.IsoFields;
 
 public class HabitSpecifications {
+
+    public static Specification<Goal> byTypeNameAndReference(String type, String reference) {
+        return (root, query, cb) -> {
+            var goal = root.get("goal");
+            var goalDefinition = goal.get("definition");
+            return cb.and(
+                cb.equal(goalDefinition.get("type").get("name"), type),
+                cb.equal(goalDefinition.get("reference"), reference)
+            );
+        };
+    }
 
     public static Specification<Habit> incompleteProgress() {
         return (root, query, cb) -> {

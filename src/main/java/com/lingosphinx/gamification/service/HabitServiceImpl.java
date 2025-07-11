@@ -3,16 +3,23 @@ package com.lingosphinx.gamification.service;
 import com.lingosphinx.gamification.domain.Habit;
 import com.lingosphinx.gamification.domain.ProgressValue;
 import com.lingosphinx.gamification.domain.RenewalType;
+import com.lingosphinx.gamification.domain.StreakProgress;
+import com.lingosphinx.gamification.dto.HabitDto;
 import com.lingosphinx.gamification.dto.HabitDto;
 import com.lingosphinx.gamification.mapper.HabitMapper;
-import com.lingosphinx.gamification.repository.HabitRepository;
+import com.lingosphinx.gamification.repository.*;
 import com.lingosphinx.gamification.repository.HabitSpecifications;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.ZoneOffset;
+import java.util.Collections;
 import java.util.List;
 
 @Slf4j
@@ -24,6 +31,8 @@ public class HabitServiceImpl implements HabitService {
     private final HabitRepository habitRepository;
     private final HabitMapper habitMapper;
 
+    private final StreakProgressRepository progressRepository;
+
     @Override
     public HabitDto create(HabitDto habitDto) {
         var habit = habitMapper.toEntity(habitDto);
@@ -32,12 +41,38 @@ public class HabitServiceImpl implements HabitService {
         return habitMapper.toDto(savedHabit);
     }
 
+    @Transactional(readOnly = true)
+    protected void fetchStreakHistory(Habit habit) {
+        var streak = habit.getStreak();
+        var tenDaysAgoStart = LocalDate.now()
+                .minusDays(9)
+                .atStartOfDay(ZoneOffset.UTC)
+                .toInstant();
+
+        var spec = StreakProgressSpecifications.byStreakId(streak.getId())
+                .and(StreakProgressSpecifications.timestampAfter(tenDaysAgoStart));
+
+        var history = progressRepository.findAll(spec, Sort.by("timestamp"));
+        streak.setHistory(history);
+    }
+
     @Override
     @Transactional(readOnly = true)
     public HabitDto readById(Long id) {
         var habit = habitRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Habit not found"));
-        log.info("Habit read successfully: id={}", id);
+        fetchStreakHistory(habit);
+        return this.habitMapper.toDto(habit);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public HabitDto readByTypeNameAndReference(String type, String reference) {
+        var spec = HabitSpecifications.byTypeNameAndReference(type, reference);
+        var habit = habitRepository.findOne(spec)
+                .orElseThrow(() -> new EntityNotFoundException("Habit not found for type=" + type + " and reference=" + reference));
+        log.info("Habit read by type and reference: type={}, reference={}, id={}", type, reference, habit.getId());
+        fetchStreakHistory(habit);
         return habitMapper.toDto(habit);
     }
 

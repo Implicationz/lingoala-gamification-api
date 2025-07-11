@@ -2,10 +2,12 @@ package com.lingosphinx.gamification.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.BatchSize;
 
 import java.time.Instant;
+import java.util.List;
 
-@Embeddable
+@Entity
 @Builder
 @RequiredArgsConstructor
 @AllArgsConstructor
@@ -13,11 +15,26 @@ import java.time.Instant;
 @Setter
 public class Streak {
 
-    @Enumerated(EnumType.STRING)
-    private RenewalType renewalType = RenewalType.NEVER;
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    private Long id;
+
     @Builder.Default
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private RenewalType renewalType = RenewalType.NEVER;
+
+    @Builder.Default
+    @Column(nullable = false)
     private Instant lastRenewal = Instant.EPOCH;
-    private long duration;
+
+    @Builder.Default
+    @Column(nullable = false)
+    private long duration = 0;
+
+    @BatchSize(size = 10)
+    @OneToMany(mappedBy = "streak", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<StreakProgress> history;
 
     public void advance() {
     }

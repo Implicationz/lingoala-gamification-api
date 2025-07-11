@@ -1,10 +1,11 @@
 package com.lingosphinx.gamification.dto;
 
 import com.lingosphinx.gamification.domain.RenewalType;
-import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 @Builder
 @RequiredArgsConstructor
@@ -18,5 +19,8 @@ public class StreakDto {
     private RenewalType renewalType = RenewalType.NEVER;
     @Builder.Default
     private Instant lastRenewal = Instant.EPOCH;
-    private long duration;
+    @Builder.Default
+    private long duration = 0;
+    @Builder.Default
+    private List<StreakProgressDto> history = new ArrayList<>();
 }

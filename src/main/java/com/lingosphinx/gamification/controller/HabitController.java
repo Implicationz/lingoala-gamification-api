@@ -29,6 +29,11 @@ public class HabitController {
         return ResponseEntity.ok(habitService.readById(id));
     }
 
+    @GetMapping("/{type}/{reference}")
+    public ResponseEntity<HabitDto> readByTypeAndReference(@PathVariable String type, @PathVariable String reference) {
+        return ResponseEntity.ok(habitService.readByTypeNameAndReference(type, reference));
+    }
+
     @GetMapping
     public ResponseEntity<List<HabitDto>> readAll() {
         return ResponseEntity.ok(habitService.readAll());

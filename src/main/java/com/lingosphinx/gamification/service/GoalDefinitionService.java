@@ -9,4 +9,6 @@ public interface GoalDefinitionService {
     List<GoalDefinitionDto> readAll();
     GoalDefinitionDto update(Long id, GoalDefinitionDto goalDefinition);
     void delete(Long id);
+
+    GoalDefinitionDto readByTypeNameAndReference(String type, String reference);
 }

@@ -9,4 +9,8 @@ public interface GoalService {
     List<GoalDto> readAll();
     GoalDto update(Long id, GoalDto goal);
     void delete(Long id);
+
+    GoalDto readByTypeNameAndReference(String type, String reference);
+
+    List<GoalDto> readAllByZoneNameAndTypeName(String zone, String type);
 }

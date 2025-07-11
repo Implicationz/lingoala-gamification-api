@@ -10,12 +10,11 @@ public class GoalDefinitionDto {
     private Long id;
     private GoalDefinition parent;
     private GoalZoneDto zone;
-    private String type;
+    private GoalTypeDto type;
     private String name;
     private String reference;
     private int worth;
     private ProgressValue target;
-    private String renewalType;
     private String image;
     private List<GoalDefinitionDto> children;
 }

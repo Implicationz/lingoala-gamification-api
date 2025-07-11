@@ -2,14 +2,16 @@ package com.lingosphinx.gamification.dto;
 
 import lombok.*;
 
+import java.time.Instant;
+
 @Builder
 @RequiredArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
-public class HabitDto {
+public class StreakProgressDto {
+
     private Long id;
-    private GoalDto goal;
-    @Builder.Default
-    private StreakDto streak = new StreakDto();
+    private StreakDto streak;
+    private Instant timestamp;
 }

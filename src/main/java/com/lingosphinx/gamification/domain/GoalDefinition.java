@@ -16,7 +16,8 @@ import java.util.Objects;
         uniqueConstraints = @UniqueConstraint(columnNames = {"type", "reference"}),
         indexes = {
                 @Index(name = "idx_goaldefinition_zone", columnList = "zone_id"),
-                @Index(name = "idx_goaldefinition_type_reference", columnList = "type,reference")
+                @Index(name = "idx_goaldefinition_type", columnList = "type_id"),
+                @Index(name = "idx_goaldefinition_type_reference", columnList = "type_id,reference")
         }
 )
 @Builder
@@ -39,19 +40,21 @@ public class GoalDefinition {
     private GoalZone zone;
 
     private String name = "";
-    private String type = "";
-    private String reference = "";
 
+    @ManyToOne
+    @JoinColumn(name = "type_id")
+    private GoalType type;
+
+    private String reference = "";
     private int worth = 1;
     private ProgressValue target = ProgressValue.valueOf(1);
-
     private String image = "";
 
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<GoalDefinition> children = new ArrayList<>();
 
     public GoalDefinition findChildByType(String type) {
-        return children.stream().filter(child -> Objects.equals(child.type, type)).findFirst().orElse(null);
+        return children.stream().filter(child -> Objects.equals(child.getType().getName(), type)).findFirst().orElse(null);
     }
 
     public GoalDefinition findChildByReference(String reference) {
