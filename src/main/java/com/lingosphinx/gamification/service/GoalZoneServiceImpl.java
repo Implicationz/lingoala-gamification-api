@@ -3,9 +3,10 @@ package com.lingosphinx.gamification.service;
 import com.lingosphinx.gamification.dto.GoalZoneDto;
 import com.lingosphinx.gamification.mapper.GoalZoneMapper;
 import com.lingosphinx.gamification.repository.GoalZoneRepository;
-import jakarta.persistence.EntityNotFoundException;
+import com.lingosphinx.gamification.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,7 +33,7 @@ public class GoalZoneServiceImpl implements GoalZoneService {
     @Transactional(readOnly = true)
     public GoalZoneDto readById(Long id) {
         var goalZone = goalZoneRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("GoalZone not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("GoalZone not found"));
         log.info("GoalZone read successfully: id={}", id);
         return goalZoneMapper.toDto(goalZone);
     }
@@ -50,7 +51,7 @@ public class GoalZoneServiceImpl implements GoalZoneService {
     @Override
     public GoalZoneDto update(Long id, GoalZoneDto goalZoneDto) {
         var existingGoalZone = goalZoneRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("GoalZone not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("GoalZone not found"));
 
         goalZoneMapper.toEntityFromDto(goalZoneDto, existingGoalZone);
         log.info("GoalZone updated successfully: id={}", existingGoalZone.getId());
@@ -65,9 +66,10 @@ public class GoalZoneServiceImpl implements GoalZoneService {
 
     @Override
     @Transactional(readOnly = true)
+    @Cacheable(value = "goalZoneReadByName", key = "#name")
     public GoalZoneDto readByName(String name) {
         var goalZone = goalZoneRepository.findByName(name)
-                .orElseThrow(() -> new EntityNotFoundException("GoalZone not found for name=" + name + "."));
+                .orElseThrow(() -> new ResourceNotFoundException("GoalZone not found for name=" + name + "."));
         log.info("GoalZone read by name: name={}, id={}", name, goalZone.getId());
         return goalZoneMapper.toDto(goalZone);
     }

@@ -7,7 +7,7 @@ import com.lingosphinx.gamification.mapper.HabitReminderMapper;
 import com.lingosphinx.gamification.repository.HabitReminderRepository;
 import com.lingosphinx.gamification.repository.HabitRepository;
 import com.lingosphinx.gamification.repository.HabitSpecifications;
-import jakarta.persistence.EntityNotFoundException;
+import com.lingosphinx.gamification.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -37,7 +37,7 @@ public class HabitReminderServiceImpl implements HabitReminderService {
     @Transactional(readOnly = true)
     public HabitReminderDto readById(Long id) {
         var habitReminder = habitReminderRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("HabitReminder not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("HabitReminder not found"));
         log.info("HabitReminder read successfully: id={}", id);
         return habitReminderMapper.toDto(habitReminder);
     }
@@ -55,7 +55,7 @@ public class HabitReminderServiceImpl implements HabitReminderService {
     @Override
     public HabitReminderDto update(Long id, HabitReminderDto habitReminderDto) {
         var existingHabitReminder = habitReminderRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("HabitReminder not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("HabitReminder not found"));
 
         habitReminderMapper.toEntityFromDto(habitReminderDto, existingHabitReminder);
         log.info("HabitReminder updated successfully: id={}", existingHabitReminder.getId());
@@ -69,7 +69,7 @@ public class HabitReminderServiceImpl implements HabitReminderService {
     }
 
     public void remind(Habit habit) {
-        var fcmToken = habit.getGoal().getUserId();
+        var fcmToken = "";
         if (fcmToken != null && !fcmToken.isBlank()) {
             var reminder = HabitReminder.builder()
                     .habitId(habit.getId())

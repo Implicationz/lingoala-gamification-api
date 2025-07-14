@@ -5,6 +5,9 @@ import java.util.List;
 
 public interface HabitService {
     HabitDto create(HabitDto habit);
+
+    HabitDto createByCurrentUser(HabitDto habitDto);
+
     HabitDto readById(Long id);
     HabitDto readByTypeNameAndReference(String type, String reference);
     List<HabitDto> readAll();

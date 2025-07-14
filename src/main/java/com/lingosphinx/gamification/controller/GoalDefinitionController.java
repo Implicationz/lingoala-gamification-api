@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/goalDefinition")
+@RequestMapping("/goal-definition")
 @RequiredArgsConstructor
 @Tag(name = "GoalDefinition API")
 public class GoalDefinitionController {

@@ -21,7 +21,7 @@ public class HabitController {
 
     @PostMapping
     public ResponseEntity<HabitDto> create(@RequestBody @Valid HabitDto habit) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(habitService.create(habit));
+        return ResponseEntity.status(HttpStatus.CREATED).body(habitService.createByCurrentUser(habit));
     }
 
     @GetMapping("/{id}")

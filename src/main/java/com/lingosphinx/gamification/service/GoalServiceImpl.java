@@ -4,7 +4,7 @@ import com.lingosphinx.gamification.dto.GoalDto;
 import com.lingosphinx.gamification.mapper.GoalMapper;
 import com.lingosphinx.gamification.repository.GoalRepository;
 import com.lingosphinx.gamification.repository.GoalSpecifications;
-import jakarta.persistence.EntityNotFoundException;
+import com.lingosphinx.gamification.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -20,6 +20,7 @@ public class GoalServiceImpl implements GoalService {
 
     private final GoalRepository goalRepository;
     private final GoalMapper goalMapper;
+    private final UserService userService;
 
     @Override
     public GoalDto create(GoalDto goalDto) {
@@ -30,10 +31,20 @@ public class GoalServiceImpl implements GoalService {
     }
 
     @Override
+    public GoalDto createByCurrentUser(GoalDto goalDto) {
+        var goal = goalMapper.toEntity(goalDto);
+        var userId = userService.getCurrentUserId();
+        goal.setUserId(userId);
+        var savedGoal = goalRepository.save(goal);
+        log.info("Goal created successfully for user={}: id={}",  userId, savedGoal.getId());
+        return goalMapper.toDto(savedGoal);
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public GoalDto readById(Long id) {
         var goal = goalRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Goal not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Goal not found"));
         log.info("Goal read successfully: id={}", id);
         return goalMapper.toDto(goal);
     }
@@ -51,7 +62,7 @@ public class GoalServiceImpl implements GoalService {
     @Override
     public GoalDto update(Long id, GoalDto goalDto) {
         var existingGoal = goalRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Goal not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Goal not found"));
 
         goalMapper.toEntityFromDto(goalDto, existingGoal);
         log.info("Goal updated successfully: id={}", existingGoal.getId());
@@ -69,7 +80,7 @@ public class GoalServiceImpl implements GoalService {
     public GoalDto readByTypeNameAndReference(String type, String reference) {
         var spec = GoalSpecifications.byTypeNameAndReference(type, reference);
         var goal = goalRepository.findOne(spec)
-                .orElseThrow(() -> new EntityNotFoundException("Goal not found for type=" + type + " and reference=" + reference));
+                .orElseThrow(() -> new ResourceNotFoundException("Goal not found for type=" + type + " and reference=" + reference));
         log.info("Goal read by type and reference: type={}, reference={}, id={}", type, reference, goal.getId());
         return goalMapper.toDto(goal);
     }

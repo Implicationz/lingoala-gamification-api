@@ -3,9 +3,10 @@ package com.lingosphinx.gamification.service;
 import com.lingosphinx.gamification.dto.GoalTypeDto;
 import com.lingosphinx.gamification.mapper.GoalTypeMapper;
 import com.lingosphinx.gamification.repository.GoalTypeRepository;
-import jakarta.persistence.EntityNotFoundException;
+import com.lingosphinx.gamification.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,7 +33,7 @@ public class GoalTypeServiceImpl implements GoalTypeService {
     @Transactional(readOnly = true)
     public GoalTypeDto readById(Long id) {
         var goalType = goalTypeRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("GoalType not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("GoalType not found"));
         log.info("GoalType read successfully: id={}", id);
         return goalTypeMapper.toDto(goalType);
     }
@@ -50,7 +51,7 @@ public class GoalTypeServiceImpl implements GoalTypeService {
     @Override
     public GoalTypeDto update(Long id, GoalTypeDto goalTypeDto) {
         var existingGoalType = goalTypeRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("GoalType not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("GoalType not found"));
 
         goalTypeMapper.toEntityFromDto(goalTypeDto, existingGoalType);
         log.info("GoalType updated successfully: id={}", existingGoalType.getId());
@@ -65,9 +66,10 @@ public class GoalTypeServiceImpl implements GoalTypeService {
 
     @Override
     @Transactional(readOnly = true)
+    @Cacheable(value = "goalTypeReadByName", key = "#name")
     public GoalTypeDto readByName(String name) {
         var goalType = goalTypeRepository.findByName(name)
-                .orElseThrow(() -> new EntityNotFoundException("GoalType not found for name=" + name + "."));
+                .orElseThrow(() -> new ResourceNotFoundException("GoalType not found for name=" + name + "."));
         log.info("GoalType read by name: name={}, id={}", name, goalType.getId());
         return goalTypeMapper.toDto(goalType);
     }

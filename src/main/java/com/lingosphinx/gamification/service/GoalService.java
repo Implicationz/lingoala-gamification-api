@@ -5,6 +5,9 @@ import java.util.List;
 
 public interface GoalService {
     GoalDto create(GoalDto goal);
+
+    GoalDto createByCurrentUser(GoalDto goalDto);
+
     GoalDto readById(Long id);
     List<GoalDto> readAll();
     GoalDto update(Long id, GoalDto goal);

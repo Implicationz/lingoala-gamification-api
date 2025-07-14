@@ -21,7 +21,7 @@ public class GoalController {
 
     @PostMapping
     public ResponseEntity<GoalDto> create(@RequestBody @Valid GoalDto goal) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(goalService.create(goal));
+        return ResponseEntity.status(HttpStatus.CREATED).body(goalService.createByCurrentUser(goal));
     }
 
     @GetMapping("/{id}")

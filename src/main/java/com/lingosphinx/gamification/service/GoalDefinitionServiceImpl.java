@@ -4,7 +4,9 @@ import com.lingosphinx.gamification.dto.GoalDefinitionDto;
 import com.lingosphinx.gamification.mapper.GoalDefinitionMapper;
 import com.lingosphinx.gamification.repository.GoalDefinitionRepository;
 import com.lingosphinx.gamification.repository.GoalDefinitionSpecifications;
-import jakarta.persistence.EntityNotFoundException;
+import com.lingosphinx.gamification.exception.ResourceNotFoundException;
+import com.lingosphinx.gamification.repository.GoalTypeRepository;
+import com.lingosphinx.gamification.repository.GoalZoneRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -20,6 +22,8 @@ import java.util.List;
 public class GoalDefinitionServiceImpl implements GoalDefinitionService {
 
     private final GoalDefinitionRepository goalDefinitionRepository;
+    private final GoalTypeRepository goalTypeRepository;
+    private final GoalZoneRepository goalZoneRepository;
     private final GoalDefinitionMapper goalDefinitionMapper;
 
     @Override
@@ -34,7 +38,7 @@ public class GoalDefinitionServiceImpl implements GoalDefinitionService {
     @Transactional(readOnly = true)
     public GoalDefinitionDto readById(Long id) {
         var goalDefinition = goalDefinitionRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("GoalDefinition not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("GoalDefinition not found"));
         log.info("GoalDefinition read successfully: id={}", id);
         return goalDefinitionMapper.toDto(goalDefinition);
     }
@@ -52,9 +56,20 @@ public class GoalDefinitionServiceImpl implements GoalDefinitionService {
     @Override
     public GoalDefinitionDto update(Long id, GoalDefinitionDto goalDefinitionDto) {
         var existingGoalDefinition = goalDefinitionRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("GoalDefinition not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("GoalDefinition not found"));
 
-        goalDefinitionMapper.toEntityFromDto(goalDefinitionDto, existingGoalDefinition);
+        goalDefinitionMapper.updateEntityFromDto(goalDefinitionDto, existingGoalDefinition);
+
+        if (goalDefinitionDto.getType() != null && goalDefinitionDto.getType().getId() != null) {
+            existingGoalDefinition.setType(goalTypeRepository.getReferenceById(goalDefinitionDto.getType().getId()));
+        }
+        if (goalDefinitionDto.getZone() != null && goalDefinitionDto.getZone().getId() != null) {
+            existingGoalDefinition.setZone(goalZoneRepository.getReferenceById(goalDefinitionDto.getZone().getId()));
+        }
+        if (goalDefinitionDto.getParent() != null && goalDefinitionDto.getParent().getId() != null) {
+            existingGoalDefinition.setParent(goalDefinitionRepository.getReferenceById(goalDefinitionDto.getParent().getId()));
+        }
+
         log.info("GoalDefinition updated successfully: id={}", existingGoalDefinition.getId());
         return goalDefinitionMapper.toDto(existingGoalDefinition);
     }
@@ -70,7 +85,7 @@ public class GoalDefinitionServiceImpl implements GoalDefinitionService {
     public GoalDefinitionDto readByTypeNameAndReference(String type, String reference) {
         var spec = GoalDefinitionSpecifications.byTypeNameAndReference(type, reference);
         var goalDefinition = goalDefinitionRepository.findOne(spec)
-                .orElseThrow(() -> new EntityNotFoundException("GoalDefinition not found for type=" + type + " and reference=" + reference));
+                .orElseThrow(() -> new ResourceNotFoundException("GoalDefinition not found for type=" + type + " and reference=" + reference));
         log.info("GoalDefinition read by type and reference: type={}, reference={}, id={}", type, reference, goalDefinition.getId());
         return goalDefinitionMapper.toDto(goalDefinition);
     }

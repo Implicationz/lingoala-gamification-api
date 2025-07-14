@@ -3,10 +3,7 @@ package com.lingosphinx.gamification.domain;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Builder
 @RequiredArgsConstructor
@@ -33,8 +30,8 @@ public class Goal {
     @ManyToOne(optional = true)
     private Goal parent;
 
-    @Column(name="user_id")
-    private String userId = "";
+    @Column(name = "user_id", nullable = false)
+    private UUID userId;
 
     @Builder.Default
     private ProgressValue progress = ProgressValue.valueOf(0);
@@ -79,11 +76,11 @@ public class Goal {
     }
 
     public boolean advanceTo(ProgressValue toCount) {
-        boolean wasCompleted = isCompleted();
+        boolean wasComplete = isComplete();
         this.progress = toCount;
-        boolean isCompleted = isCompleted();
+        boolean isComplete = isComplete();
         this.lastProgress = Instant.now();
-        boolean streakUpdate = !wasCompleted && isCompleted;
+        boolean streakUpdate = !wasComplete && isComplete;
         return streakUpdate;
     }
 
@@ -91,7 +88,7 @@ public class Goal {
         return definition.getTarget().getValue() - progress.getValue();
     }
 
-    public boolean isCompleted() {
+    public boolean isComplete() {
         return resting() <= 0;
     }
 
@@ -137,6 +134,10 @@ public class Goal {
 
     public boolean isChildComplete(String gnodeReference) {
         Goal gnode = findChildByReference(gnodeReference);
-        return gnode != null && gnode.isCompleted();
+        return gnode != null && gnode.isComplete();
+    }
+
+    public void apply(Progress progress) {
+        this.progress = progress.getValue();
     }
 }

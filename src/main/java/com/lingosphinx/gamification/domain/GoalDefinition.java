@@ -36,13 +36,13 @@ public class GoalDefinition {
     private GoalDefinition parent;
 
     @ManyToOne
-    @JoinColumn(name = "zone_id")
+    @JoinColumn(name = "zone_id", nullable = false)
     private GoalZone zone;
 
     private String name = "";
 
     @ManyToOne
-    @JoinColumn(name = "type_id")
+    @JoinColumn(name = "type_id", nullable = false)
     private GoalType type;
 
     private String reference = "";

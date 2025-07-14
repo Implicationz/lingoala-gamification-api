@@ -8,7 +8,7 @@ import java.util.List;
 @Data
 public class GoalDefinitionDto {
     private Long id;
-    private GoalDefinition parent;
+    private GoalDefinitionDto parent;
     private GoalZoneDto zone;
     private GoalTypeDto type;
     private String name;

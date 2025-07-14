@@ -2,24 +2,21 @@ package com.lingosphinx.gamification.service;
 
 import com.lingosphinx.gamification.domain.Habit;
 import com.lingosphinx.gamification.domain.ProgressValue;
-import com.lingosphinx.gamification.domain.RenewalType;
-import com.lingosphinx.gamification.domain.StreakProgress;
 import com.lingosphinx.gamification.dto.HabitDto;
-import com.lingosphinx.gamification.dto.HabitDto;
+import com.lingosphinx.gamification.event.GoalCompletedEvent;
 import com.lingosphinx.gamification.mapper.HabitMapper;
 import com.lingosphinx.gamification.repository.*;
 import com.lingosphinx.gamification.repository.HabitSpecifications;
-import jakarta.persistence.EntityNotFoundException;
+import com.lingosphinx.gamification.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.event.EventListener;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.ZoneOffset;
-import java.util.Collections;
 import java.util.List;
 
 @Slf4j
@@ -32,12 +29,34 @@ public class HabitServiceImpl implements HabitService {
     private final HabitMapper habitMapper;
 
     private final StreakProgressRepository progressRepository;
+    private final UserService userService;
+
+    @EventListener
+    public void onGoalCompleted(GoalCompletedEvent event) {
+        var goal = event.getGoal();
+        var habitOpt = habitRepository.findByGoal(goal);
+        if (habitOpt.isEmpty()) {
+            return;
+        }
+        var habit = habitOpt.get();
+        habit.getStreak().advance();
+    }
 
     @Override
     public HabitDto create(HabitDto habitDto) {
         var habit = habitMapper.toEntity(habitDto);
         var savedHabit = habitRepository.save(habit);
         log.info("Habit created successfully: id={}", savedHabit.getId());
+        return habitMapper.toDto(savedHabit);
+    }
+
+    @Override
+    public HabitDto createByCurrentUser(HabitDto habitDto) {
+        var habit = habitMapper.toEntity(habitDto);
+        var userId = userService.getCurrentUserId();
+        habit.getGoal().setUserId(userId);
+        var savedHabit = habitRepository.save(habit);
+        log.info("Habit created successfully for user={}: id={}", userId, savedHabit.getId());
         return habitMapper.toDto(savedHabit);
     }
 
@@ -60,7 +79,7 @@ public class HabitServiceImpl implements HabitService {
     @Transactional(readOnly = true)
     public HabitDto readById(Long id) {
         var habit = habitRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Habit not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Habit not found"));
         fetchStreakHistory(habit);
         return this.habitMapper.toDto(habit);
     }
@@ -70,7 +89,7 @@ public class HabitServiceImpl implements HabitService {
     public HabitDto readByTypeNameAndReference(String type, String reference) {
         var spec = HabitSpecifications.byTypeNameAndReference(type, reference);
         var habit = habitRepository.findOne(spec)
-                .orElseThrow(() -> new EntityNotFoundException("Habit not found for type=" + type + " and reference=" + reference));
+                .orElseThrow(() -> new ResourceNotFoundException("Habit not found for type=" + type + " and reference=" + reference));
         log.info("Habit read by type and reference: type={}, reference={}, id={}", type, reference, habit.getId());
         fetchStreakHistory(habit);
         return habitMapper.toDto(habit);
@@ -89,7 +108,7 @@ public class HabitServiceImpl implements HabitService {
     @Override
     public HabitDto update(Long id, HabitDto habitDto) {
         var existingHabit = habitRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Habit not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Habit not found"));
 
         habitMapper.toEntityFromDto(habitDto, existingHabit);
         log.info("Habit updated successfully: id={}", existingHabit.getId());

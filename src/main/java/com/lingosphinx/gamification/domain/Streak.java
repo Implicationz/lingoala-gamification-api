@@ -37,5 +37,6 @@ public class Streak {
     private List<StreakProgress> history;
 
     public void advance() {
+        this.duration += 1;
     }
 }
