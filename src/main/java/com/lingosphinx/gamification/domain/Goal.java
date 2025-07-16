@@ -43,6 +43,9 @@ public class Goal {
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Goal> children = new ArrayList<>();
 
+    public void reset() {
+        setProgress(ProgressValue.ZERO);
+    }
 
     public double getPercentage() {
         if (definition.getTarget() != null && definition.getTarget().getValue() != 0) {

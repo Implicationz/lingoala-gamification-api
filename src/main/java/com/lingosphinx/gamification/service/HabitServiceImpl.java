@@ -122,9 +122,7 @@ public class HabitServiceImpl implements HabitService {
     }
 
     public void reset(Habit habit) {
-        habit.getStreak().setDuration(0L);
-        habit.getGoal().setProgress(ProgressValue.ZERO);
-        habitRepository.save(habit);
+        habit.reset();
         log.info("Habit streak reset: id={}", habit.getId());
 
     }

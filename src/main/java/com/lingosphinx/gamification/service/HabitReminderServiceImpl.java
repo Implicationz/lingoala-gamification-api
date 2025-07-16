@@ -3,6 +3,7 @@ package com.lingosphinx.gamification.service;
 import com.lingosphinx.gamification.domain.Habit;
 import com.lingosphinx.gamification.domain.HabitReminder;
 import com.lingosphinx.gamification.dto.HabitReminderDto;
+import com.lingosphinx.gamification.event.RemindersCreatedEvent;
 import com.lingosphinx.gamification.mapper.HabitReminderMapper;
 import com.lingosphinx.gamification.repository.HabitReminderRepository;
 import com.lingosphinx.gamification.repository.HabitRepository;
@@ -10,8 +11,11 @@ import com.lingosphinx.gamification.repository.HabitSpecifications;
 import com.lingosphinx.gamification.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronizationAdapter;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.util.List;
 
@@ -24,6 +28,7 @@ public class HabitReminderServiceImpl implements HabitReminderService {
     private final HabitReminderRepository habitReminderRepository;
     private final HabitRepository habitRepository;
     private final HabitReminderMapper habitReminderMapper;
+    private final ApplicationEventPublisher publisher;
 
     @Override
     public HabitReminderDto create(HabitReminderDto habitReminderDto) {
@@ -68,23 +73,30 @@ public class HabitReminderServiceImpl implements HabitReminderService {
         log.info("HabitReminder deleted successfully: id={}", id);
     }
 
-    public void remind(Habit habit) {
-        var fcmToken = "";
-        if (fcmToken != null && !fcmToken.isBlank()) {
-            var reminder = HabitReminder.builder()
-                    .habitId(habit.getId())
-                    .fcmToken(fcmToken)
-                    .title("Streak Erinnerung")
-                    .body("Vergiss nicht, deinen Habit heute zu erledigen!")
-                    .build();
-            habitReminderRepository.save(reminder);
-            log.info("HabitReminder gespeichert: habitId={}", habit.getId());
-        }
+    public HabitReminder remind(Habit habit) {
+        var reminder = HabitReminder.builder()
+                .habit(habit)
+                .title("Streak Erinnerung")
+                .body("Vergiss nicht, deinen Habit heute zu erledigen!")
+                .build();
+        habitReminderRepository.save(reminder);
+        log.info("HabitReminder saved: habitId={}", habit.getId());
+        return reminder;
     }
+
     @Override
     public void remindAll() {
         var spec = HabitSpecifications.due();
         var habits = habitRepository.findAll(spec);
-        habits.forEach(this::remind);
+        var habitReminders = habits.stream().map(this::remind).toList();
+
+        TransactionSynchronizationManager.registerSynchronization(
+                new TransactionSynchronizationAdapter() {
+                    @Override
+                    public void afterCommit() {
+                        publisher.publishEvent(new RemindersCreatedEvent(habitReminders));
+                    }
+                }
+        );
     }
 }

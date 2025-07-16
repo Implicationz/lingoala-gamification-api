@@ -23,6 +23,9 @@ public interface HabitRepository extends JpaRepository<Habit, Long>, JpaSpecific
 
     @EntityGraph(attributePaths = {"goal", "goal.definition", "streak"})
     List<Habit> findAll();
+
+    @EntityGraph(attributePaths = {"goal", "goal.definition", "streak"})
+    List<Habit> findAll(Specification spec);
     
     @EntityGraph(attributePaths = {"goal", "goal.definition", "streak"})
     Optional<Habit> findOne(Specification spec);

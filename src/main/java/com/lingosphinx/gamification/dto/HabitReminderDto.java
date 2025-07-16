@@ -20,6 +20,8 @@ public class HabitReminderDto {
 
     @Builder.Default
     private boolean sent = false;
+    @Builder.Default
+    private int trialCount = 0;
 
     @Builder.Default
     private Instant createdAt = Instant.now();

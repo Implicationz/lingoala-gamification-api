@@ -23,4 +23,13 @@ public class Habit {
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "streak_id", unique = true)
     private Streak streak = new Streak();
+
+    public String getName() {
+        return goal.getDefinition().getName();
+    };
+
+    public void reset() {
+        this.goal.reset();
+        this.streak.reset();
+    }
 }

@@ -5,21 +5,22 @@ import com.lingosphinx.gamification.domain.Habit;
 import com.lingosphinx.gamification.domain.RenewalType;
 import org.springframework.data.jpa.domain.Specification;
 
-import java.time.Instant;
+import java.sql.Timestamp;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.time.temporal.ChronoUnit;
-import java.time.temporal.IsoFields;
 
 public class HabitSpecifications {
+
+    private static final ZoneId ZONE_ID = ZoneId.systemDefault();
 
     public static Specification<Goal> byTypeNameAndReference(String type, String reference) {
         return (root, query, cb) -> {
             var goal = root.get("goal");
             var goalDefinition = goal.get("definition");
             return cb.and(
-                cb.equal(goalDefinition.get("type").get("name"), type),
-                cb.equal(goalDefinition.get("reference"), reference)
+                    cb.equal(goalDefinition.get("type").get("name"), type),
+                    cb.equal(goalDefinition.get("reference"), reference)
             );
         };
     }
@@ -37,12 +38,12 @@ public class HabitSpecifications {
     public static Specification<Habit> isDailyDue() {
         return (root, query, cb) -> {
             var renewalType = root.get("streak").get("renewalType");
-            var lastRenewal = root.get("streak").get("lastRenewal");
-            var today = LocalDate.now(ZoneId.systemDefault());
-            var lastRenewalDate = cb.function("date", LocalDate.class, lastRenewal);
+            var lastProgress = root.get("streak").get("lastProgress").as(Timestamp.class);
+            var today = LocalDate.now(ZONE_ID);
+            var startOfDayTimestamp = Timestamp.from(today.atStartOfDay(ZONE_ID).toInstant());
             return cb.and(
                     cb.equal(renewalType, RenewalType.DAILY),
-                    cb.lessThan(lastRenewalDate, today)
+                    cb.lessThan(lastProgress, startOfDayTimestamp)
             );
         };
     }
@@ -50,18 +51,12 @@ public class HabitSpecifications {
     public static Specification<Habit> isWeeklyDue() {
         return (root, query, cb) -> {
             var renewalType = root.get("streak").get("renewalType");
-            var lastRenewal = root.get("streak").get("lastRenewal");
-            var currentWeek = LocalDate.now(ZoneId.systemDefault()).get(IsoFields.WEEK_OF_WEEK_BASED_YEAR);
-            var currentYear = LocalDate.now(ZoneId.systemDefault()).getYear();
-            var lastRenewalDate = cb.function("date", LocalDate.class, lastRenewal);
-            var lastRenewalWeek = cb.function("week", Integer.class, lastRenewalDate);
-            var lastRenewalYear = cb.function("year", Integer.class, lastRenewalDate);
+            var lastProgress = root.get("streak").get("lastProgress").as(Timestamp.class);
+            var today = LocalDate.now(ZONE_ID);
+            var startOfWeekTimestamp = Timestamp.from(today.with(DayOfWeek.MONDAY).atStartOfDay(ZONE_ID).toInstant());
             return cb.and(
                     cb.equal(renewalType, RenewalType.WEEKLY),
-                    cb.or(
-                            cb.lessThan(lastRenewalYear, currentYear),
-                            cb.lessThan(lastRenewalWeek, currentWeek)
-                    )
+                    cb.lessThan(lastProgress, startOfWeekTimestamp)
             );
         };
     }
@@ -69,18 +64,13 @@ public class HabitSpecifications {
     public static Specification<Habit> isMonthlyDue() {
         return (root, query, cb) -> {
             var renewalType = root.get("streak").get("renewalType");
-            var lastRenewal = root.get("streak").get("lastRenewal");
-            var currentMonth = LocalDate.now(ZoneId.systemDefault()).getMonthValue();
-            var currentYear = LocalDate.now(ZoneId.systemDefault()).getYear();
-            var lastRenewalDate = cb.function("date", LocalDate.class, lastRenewal);
-            var lastRenewalMonth = cb.function("month", Integer.class, lastRenewalDate);
-            var lastRenewalYear = cb.function("year", Integer.class, lastRenewalDate);
+            var lastProgress = root.get("streak").get("lastProgress").as(Timestamp.class);
+            var today = LocalDate.now(ZONE_ID);
+            var startOfMonthTimestamp = Timestamp.from(today.withDayOfMonth(1).atStartOfDay(ZONE_ID).toInstant());
             return cb.and(
                     cb.equal(renewalType, RenewalType.MONTHLY),
-                    cb.or(
-                            cb.lessThan(lastRenewalYear, currentYear),
-                            cb.lessThan(lastRenewalMonth, currentMonth)
-                    )
+                    cb.lessThan(lastProgress, startOfMonthTimestamp)
+
             );
         };
     }

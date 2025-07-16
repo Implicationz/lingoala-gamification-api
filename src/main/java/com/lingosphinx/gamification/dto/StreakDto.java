@@ -18,7 +18,7 @@ public class StreakDto {
     @Builder.Default
     private RenewalType renewalType = RenewalType.NEVER;
     @Builder.Default
-    private Instant lastRenewal = Instant.EPOCH;
+    private Instant lastProgress = Instant.EPOCH;
     @Builder.Default
     private long duration = 0;
     @Builder.Default
