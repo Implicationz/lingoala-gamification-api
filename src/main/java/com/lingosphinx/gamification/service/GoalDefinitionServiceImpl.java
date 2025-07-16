@@ -1,15 +1,14 @@
 package com.lingosphinx.gamification.service;
 
 import com.lingosphinx.gamification.dto.GoalDefinitionDto;
+import com.lingosphinx.gamification.exception.ResourceNotFoundException;
 import com.lingosphinx.gamification.mapper.GoalDefinitionMapper;
 import com.lingosphinx.gamification.repository.GoalDefinitionRepository;
 import com.lingosphinx.gamification.repository.GoalDefinitionSpecifications;
-import com.lingosphinx.gamification.exception.ResourceNotFoundException;
 import com.lingosphinx.gamification.repository.GoalTypeRepository;
 import com.lingosphinx.gamification.repository.GoalZoneRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

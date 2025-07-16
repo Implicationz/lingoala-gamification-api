@@ -3,8 +3,6 @@ package com.lingosphinx.gamification.repository;
 
 import com.lingosphinx.gamification.domain.Goal;
 import com.lingosphinx.gamification.domain.Habit;
-import com.lingosphinx.gamification.domain.Habit;
-import com.lingosphinx.gamification.domain.Streak;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;

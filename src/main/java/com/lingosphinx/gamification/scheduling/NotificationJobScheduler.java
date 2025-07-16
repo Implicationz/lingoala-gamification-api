@@ -1,6 +1,5 @@
 package com.lingosphinx.gamification.scheduling;
 
-import com.lingosphinx.gamification.service.HabitReminderService;
 import com.lingosphinx.notification.service.NotificationJobService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

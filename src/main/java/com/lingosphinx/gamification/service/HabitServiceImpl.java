@@ -1,13 +1,14 @@
 package com.lingosphinx.gamification.service;
 
 import com.lingosphinx.gamification.domain.Habit;
-import com.lingosphinx.gamification.domain.ProgressValue;
 import com.lingosphinx.gamification.dto.HabitDto;
 import com.lingosphinx.gamification.event.GoalCompletedEvent;
-import com.lingosphinx.gamification.mapper.HabitMapper;
-import com.lingosphinx.gamification.repository.*;
-import com.lingosphinx.gamification.repository.HabitSpecifications;
 import com.lingosphinx.gamification.exception.ResourceNotFoundException;
+import com.lingosphinx.gamification.mapper.HabitMapper;
+import com.lingosphinx.gamification.repository.HabitRepository;
+import com.lingosphinx.gamification.repository.HabitSpecifications;
+import com.lingosphinx.gamification.repository.StreakProgressRepository;
+import com.lingosphinx.gamification.repository.StreakProgressSpecifications;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;

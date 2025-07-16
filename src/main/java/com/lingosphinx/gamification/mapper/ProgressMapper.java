@@ -5,8 +5,6 @@ import com.lingosphinx.gamification.dto.ProgressDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 
-import java.util.List;
-
 @Mapper(componentModel = "spring")
 public interface ProgressMapper {
     ProgressDto toDto(Progress entity);

@@ -1,13 +1,12 @@
 package com.lingosphinx.notification.service;
 
+import com.lingosphinx.gamification.exception.ResourceNotFoundException;
+import com.lingosphinx.gamification.service.UserService;
 import com.lingosphinx.notification.domain.Receiver;
 import com.lingosphinx.notification.dto.NotificationChannelDto;
-import com.lingosphinx.gamification.exception.ResourceNotFoundException;
 import com.lingosphinx.notification.mapper.NotificationChannelMapper;
 import com.lingosphinx.notification.repository.NotificationChannelRepository;
 import com.lingosphinx.notification.repository.ReceiverRepository;
-import com.lingosphinx.notification.service.NotificationChannelService;
-import com.lingosphinx.gamification.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

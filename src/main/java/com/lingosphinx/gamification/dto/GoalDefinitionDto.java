@@ -1,8 +1,8 @@
 package com.lingosphinx.gamification.dto;
 
-import com.lingosphinx.gamification.domain.GoalDefinition;
 import com.lingosphinx.gamification.domain.ProgressValue;
 import lombok.Data;
+
 import java.util.List;
 
 @Data

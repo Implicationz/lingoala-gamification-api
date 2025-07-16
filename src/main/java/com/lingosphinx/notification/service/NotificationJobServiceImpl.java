@@ -2,7 +2,6 @@ package com.lingosphinx.notification.service;
 
 import com.lingosphinx.gamification.exception.ResourceNotFoundException;
 import com.lingosphinx.gamification.service.UserService;
-import com.lingosphinx.notification.domain.NotificationJob;
 import com.lingosphinx.notification.dto.NotificationJobDto;
 import com.lingosphinx.notification.event.NotificationJobProcessingStartedEvent;
 import com.lingosphinx.notification.mapper.NotificationJobMapper;
@@ -13,8 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionSynchronizationAdapter;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.util.List;
 

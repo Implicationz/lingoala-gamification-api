@@ -1,7 +1,5 @@
 package com.lingosphinx.notification.dto;
 
-import com.lingosphinx.notification.domain.NotificationChannel;
-import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.ArrayList;

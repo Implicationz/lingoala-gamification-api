@@ -1,6 +1,5 @@
 package com.lingosphinx.gamification.dto;
 
-import com.lingosphinx.gamification.domain.Goal;
 import com.lingosphinx.gamification.domain.ProgressValue;
 import lombok.*;
 

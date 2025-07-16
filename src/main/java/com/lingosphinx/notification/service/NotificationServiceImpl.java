@@ -1,16 +1,13 @@
 package com.lingosphinx.notification.service;
 
-import com.lingosphinx.gamification.event.RemindersCreatedEvent;
-import com.lingosphinx.notification.domain.Notification;
+import com.lingosphinx.gamification.exception.ResourceNotFoundException;
+import com.lingosphinx.gamification.service.UserService;
 import com.lingosphinx.notification.domain.NotificationJob;
 import com.lingosphinx.notification.dto.NotificationDto;
-import com.lingosphinx.gamification.exception.ResourceNotFoundException;
 import com.lingosphinx.notification.event.NotificationCreatedEvent;
 import com.lingosphinx.notification.mapper.NotificationMapper;
 import com.lingosphinx.notification.repository.NotificationRepository;
 import com.lingosphinx.notification.repository.ReceiverRepository;
-import com.lingosphinx.notification.service.NotificationService;
-import com.lingosphinx.gamification.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;

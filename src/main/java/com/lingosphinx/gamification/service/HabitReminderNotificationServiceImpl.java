@@ -1,15 +1,8 @@
 package com.lingosphinx.gamification.service;
 
-import com.lingosphinx.gamification.domain.Habit;
 import com.lingosphinx.gamification.domain.HabitReminder;
-import com.lingosphinx.gamification.dto.HabitReminderDto;
 import com.lingosphinx.gamification.event.RemindersCreatedEvent;
-import com.lingosphinx.gamification.exception.ResourceNotFoundException;
-import com.lingosphinx.gamification.mapper.HabitReminderMapper;
 import com.lingosphinx.gamification.repository.HabitReminderRepository;
-import com.lingosphinx.gamification.repository.HabitRepository;
-import com.lingosphinx.gamification.repository.HabitSpecifications;
-import com.lingosphinx.notification.domain.Notification;
 import com.lingosphinx.notification.dto.NotificationDto;
 import com.lingosphinx.notification.service.NotificationService;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.util.List;
 
 @Slf4j
 @Service

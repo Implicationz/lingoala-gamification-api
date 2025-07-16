@@ -2,7 +2,10 @@ package com.lingosphinx.gamification.mapper;
 
 import com.lingosphinx.gamification.domain.GoalDefinition;
 import com.lingosphinx.gamification.dto.GoalDefinitionDto;
-import org.mapstruct.*;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
+
 import java.util.List;
 
 @Mapper(componentModel = "spring")

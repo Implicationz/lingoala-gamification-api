@@ -1,6 +1,5 @@
 package com.lingosphinx.gamification.scheduling;
 
-import com.lingosphinx.gamification.domain.RenewalType;
 import com.lingosphinx.gamification.service.HabitService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

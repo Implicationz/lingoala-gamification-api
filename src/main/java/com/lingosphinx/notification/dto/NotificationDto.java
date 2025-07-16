@@ -1,8 +1,6 @@
 package com.lingosphinx.notification.dto;
 
-import com.lingosphinx.notification.domain.NotificationJob;
-import com.lingosphinx.notification.domain.Receiver;
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
 import lombok.*;
 
 import java.util.ArrayList;

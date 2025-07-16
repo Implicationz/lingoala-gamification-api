@@ -2,18 +2,9 @@ package com.lingosphinx.notification.service;
 
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.Message;
-import com.google.firebase.messaging.Notification;
-import com.lingosphinx.gamification.dto.GoalDto;
-import com.lingosphinx.gamification.exception.ResourceNotFoundException;
-import com.lingosphinx.gamification.mapper.GoalMapper;
-import com.lingosphinx.gamification.repository.GoalRepository;
-import com.lingosphinx.gamification.repository.GoalSpecifications;
-import com.lingosphinx.gamification.service.GoalService;
-import com.lingosphinx.gamification.service.UserService;
 import com.lingosphinx.notification.domain.NotificationChannelType;
 import com.lingosphinx.notification.domain.NotificationJob;
 import com.lingosphinx.notification.domain.NotificationJobStatus;
-import com.lingosphinx.notification.event.NotificationCreatedEvent;
 import com.lingosphinx.notification.event.NotificationJobProcessingStartedEvent;
 import com.lingosphinx.notification.repository.NotificationJobRepository;
 import lombok.RequiredArgsConstructor;
@@ -25,8 +16,6 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Slf4j
 @Service

@@ -1,6 +1,5 @@
 package com.lingosphinx.gamification.domain;
 
-import com.lingosphinx.gamification.domain.ProgressValue;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
