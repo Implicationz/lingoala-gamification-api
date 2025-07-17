@@ -1,6 +1,5 @@
-package com.lingosphinx.notification.dto;
+package com.lingosphinx.gamification.dto;
 
-import jakarta.persistence.Entity;
 import lombok.*;
 
 import java.util.ArrayList;
@@ -12,13 +11,10 @@ import java.util.UUID;
 @AllArgsConstructor
 @Getter
 @Setter
-@Entity
 public class NotificationDto {
 
     private Long id;
     private UUID receiver;
     String title;
     String message;
-    private List<NotificationJobDto> jobs = new ArrayList<>();
-
 }

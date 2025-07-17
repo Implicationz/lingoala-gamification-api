@@ -5,3 +5,6 @@ spring:
       active: dev
     jpa:
       open-in-view: false
+notification:
+  client:
+    url: ${NOTIFICATION_CLIENT_URL}
