@@ -2,6 +2,8 @@ package com.lingosphinx.gamification;
 
 import com.lingosphinx.gamification.domain.ProgressValue;
 import com.lingosphinx.gamification.dto.GoalDefinitionDto;
+import com.lingosphinx.gamification.dto.GoalTypeDto;
+import com.lingosphinx.gamification.dto.GoalZoneDto;
 import com.lingosphinx.gamification.repository.GoalDefinitionRepository;
 import com.lingosphinx.gamification.service.GoalDefinitionService;
 import org.junit.jupiter.api.BeforeEach;
@@ -51,11 +53,11 @@ class GoalDefinitionServiceTest {
     private GoalDefinitionDto createSampleGoalDefinition(String name) {
         GoalDefinitionDto dto = new GoalDefinitionDto();
         dto.setName(name);
-        dto.setType("type_" + name);
+        dto.setType(GoalTypeDto.builder().name("type_" + name).build());
+        dto.setZone(GoalZoneDto.builder().name("zone_" + name).build());
         dto.setReference("ref_" + name);
         dto.setWorth(10);
         dto.setTarget(ProgressValue.valueOf(5));
-        dto.setRenewalType("NEVER");
         dto.setImage("img.png");
         return goalDefinitionService.create(dto);
     }

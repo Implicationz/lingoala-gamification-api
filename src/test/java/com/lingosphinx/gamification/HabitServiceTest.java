@@ -3,10 +3,7 @@ package com.lingosphinx.gamification;
 import com.lingosphinx.gamification.domain.ProgressValue;
 import com.lingosphinx.gamification.domain.RenewalType;
 import com.lingosphinx.gamification.domain.Streak;
-import com.lingosphinx.gamification.dto.GoalDefinitionDto;
-import com.lingosphinx.gamification.dto.GoalDto;
-import com.lingosphinx.gamification.dto.HabitDto;
-import com.lingosphinx.gamification.dto.StreakDto;
+import com.lingosphinx.gamification.dto.*;
 import com.lingosphinx.gamification.repository.GoalDefinitionRepository;
 import com.lingosphinx.gamification.repository.GoalRepository;
 import com.lingosphinx.gamification.repository.HabitRepository;
@@ -25,6 +22,7 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.util.List;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -69,16 +67,16 @@ class HabitServiceTest {
     private GoalDefinitionDto createSampleGoalDefinition(String name) {
         GoalDefinitionDto dto = new GoalDefinitionDto();
         dto.setName(name);
-        dto.setType("type_" + name);
+        dto.setType(GoalTypeDto.builder().name("type_" + name).build());
+        dto.setZone(GoalZoneDto.builder().name("zone_" + name).build());
         dto.setReference("ref_" + name);
         dto.setWorth(10);
         dto.setTarget(ProgressValue.valueOf(5));
-        dto.setRenewalType("NEVER");
         dto.setImage("img.png");
         return goalDefinitionService.create(dto);
     }
 
-    private GoalDto createSampleGoal(String goalDefName, String userId) {
+    private GoalDto createSampleGoal(String goalDefName, UUID userId) {
         GoalDefinitionDto def = createSampleGoalDefinition(goalDefName);
         GoalDto dto = new GoalDto();
         dto.setDefinition(def);
@@ -87,7 +85,7 @@ class HabitServiceTest {
         return goalService.create(dto);
     }
 
-    private HabitDto createSampleHabit(String goalDefName, String userId) {
+    private HabitDto createSampleHabit(String goalDefName, UUID userId) {
         GoalDto goal = createSampleGoal(goalDefName, userId);
         var streak = StreakDto.builder()
                 .renewalType(RenewalType.NEVER)
@@ -101,24 +99,30 @@ class HabitServiceTest {
 
     @Test
     void createHabit_shouldPersistHabit() {
-        var saved = createSampleHabit("HabitGoal", "user-1");
+        UUID userId = UUID.randomUUID();
+        var saved = createSampleHabit("HabitGoal", userId);
         assertNotNull(saved.getId());
         assertEquals("HabitGoal", saved.getGoal().getDefinition().getName());
+        assertEquals(userId, saved.getGoal().getUserId());
         assertNotNull(saved.getStreak());
     }
 
     @Test
     void readById_shouldReturnPersistedHabit() {
-        var saved = createSampleHabit("ReadHabit", "user-2");
+        UUID userId = UUID.randomUUID();
+        var saved = createSampleHabit("ReadHabit", userId);
         var found = habitService.readById(saved.getId());
         assertNotNull(found);
         assertEquals("ReadHabit", found.getGoal().getDefinition().getName());
+        assertEquals(userId, found.getGoal().getUserId());
     }
 
     @Test
     void readAll_shouldReturnAllHabits() {
-        createSampleHabit("Habit1", "user-1");
-        createSampleHabit("Habit2", "user-2");
+        UUID userId1 = UUID.randomUUID();
+        UUID userId2 = UUID.randomUUID();
+        createSampleHabit("Habit1", userId1);
+        createSampleHabit("Habit2", userId2);
         List<HabitDto> all = habitService.readAll();
         assertEquals(2, all.size());
         assertTrue(all.stream().anyMatch(h -> "Habit1".equals(h.getGoal().getDefinition().getName())));
@@ -127,7 +131,8 @@ class HabitServiceTest {
 
     @Test
     void delete_shouldRemoveHabit() {
-        var saved = createSampleHabit("ToDeleteHabit", "user-3");
+        UUID userId = UUID.randomUUID();
+        var saved = createSampleHabit("ToDeleteHabit", userId);
         habitService.delete(saved.getId());
         assertThrows(Exception.class, () -> habitService.readById(saved.getId()));
     }
