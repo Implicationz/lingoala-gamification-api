@@ -125,13 +125,14 @@ public class HabitServiceImpl implements HabitService {
     public void reset(Habit habit) {
         habit.reset();
         log.info("Habit streak reset: id={}", habit.getId());
-
     }
 
     @Override
     public void resetAll() {
         var spec = HabitSpecifications.due();
         var habits = habitRepository.findAll(spec);
+        log.info("Habit reset started for {} habits", habits.size());
         habits.forEach(this::reset);
+        log.info("Habit reset completed {} habits", habits.size());
     }
 }

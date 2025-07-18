@@ -17,5 +17,5 @@ cors:
     - http://localhost
 jwt:
   secret: ${JWT_SECRET}
-firebase:
-  config-json: ${FIREBASE_CONFIG_JSON:}
+cron:
+  secret: ${CRON_SECRET:dev-secret}

@@ -34,18 +34,19 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-        .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-        .csrf(csrf -> csrf.disable())
-        .authorizeHttpRequests(auth -> auth
-                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                .anyRequest().authenticated()
-        )
-        .oauth2ResourceServer(oauth2 -> oauth2
-                .jwt(jwt -> jwt
-                        .decoder(jwtDecoder())
-                        .jwtAuthenticationConverter(jwtAuthenticationConverter())
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/schedule/habit/reset", "/schedule/habit/remind").permitAll()
+                        .anyRequest().authenticated()
                 )
-        );
+                .oauth2ResourceServer(oauth2 -> oauth2
+                        .jwt(jwt -> jwt
+                                .decoder(jwtDecoder())
+                                .jwtAuthenticationConverter(jwtAuthenticationConverter())
+                        )
+                );
         return http.build();
     }
 

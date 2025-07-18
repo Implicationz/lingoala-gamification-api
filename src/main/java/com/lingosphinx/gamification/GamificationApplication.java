@@ -12,7 +12,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @SpringBootApplication
 @EnableCaching
 @EnableAsync
-@EnableScheduling
 @EnableFeignClients
 public class GamificationApplication {
 
