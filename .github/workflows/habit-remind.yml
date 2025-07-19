@@ -1,4 +1,4 @@
-name: Cron Remind
+name: Habit Remind
 
 on:
   schedule:
@@ -13,7 +13,7 @@ jobs:
       - name: Wake app
         run: |
           echo "Waking up the Render app..."
-          curl -s -H -POST "X-Cron-Secret: ${{ secrets.CRON_SECRET_TOKEN }}"  https://lingosphinx-gamification-api.onrender.com/schedule/habit/remind > /dev/null
+          curl -s -H POST "X-Cron-Secret: ${{ secrets.CRON_SECRET_TOKEN }}"  https://lingosphinx-gamification-api.onrender.com/schedule/habit/remind > /dev/null
 
       - name: Wait for app to wake
         run: |
@@ -23,4 +23,4 @@ jobs:
       - name: Call schedule endpoint
         run: |
           echo "Calling schedule endpoint..."
-          curl -s -H -POST "X-Cron-Secret: ${{ secrets.CRON_SECRET_TOKEN }}"  https://lingosphinx-gamification-api.onrender.com/schedule/habit/remind
+          curl -s -H POST "X-Cron-Secret: ${{ secrets.CRON_SECRET_TOKEN }}"  https://lingosphinx-gamification-api.onrender.com/schedule/habit/remind
