@@ -9,6 +9,12 @@ spring:
     hibernate:
       ddl-auto: validate
     show-sql: false
+    properties:
+      hibernate:
+        jdbc:
+          batch_size: 50
+        order_inserts: true
+        order_updates: true
 cors:
   allowed-origins:
     - http://localhost:5173

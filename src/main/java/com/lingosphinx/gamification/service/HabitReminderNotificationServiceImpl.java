@@ -39,6 +39,7 @@ public class HabitReminderNotificationServiceImpl {
         var reminders = event.getReminders();
         for (var reminder : reminders) {
             try {
+                log.info("Sending reminder: {}", reminder.getId());
                 var notification = toNotification(reminder);
                 notificationClient.create(notification);
                 reminder.setSent(true);

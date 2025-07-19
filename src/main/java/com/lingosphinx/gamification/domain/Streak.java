@@ -36,9 +36,9 @@ public class Streak {
     @OneToMany(mappedBy = "streak", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<StreakProgress> history;
 
-    public void advance() {
+    public void apply(StreakProgress progress) {
         this.duration += 1;
-        this.lastProgress = Instant.now();
+        this.lastProgress = progress.getTimestamp();
     }
 
     public void reset() {

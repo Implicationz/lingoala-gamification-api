@@ -29,7 +29,8 @@ public class HabitServiceImpl implements HabitService {
     private final HabitRepository habitRepository;
     private final HabitMapper habitMapper;
 
-    private final StreakProgressRepository progressRepository;
+    private final StreakProgressRepository streakProgressRepository;
+    private final StreakService streakService;
     private final UserService userService;
 
     @EventListener
@@ -39,8 +40,9 @@ public class HabitServiceImpl implements HabitService {
         if (habitOpt.isEmpty()) {
             return;
         }
+
         var habit = habitOpt.get();
-        habit.getStreak().advance();
+        streakService.progress(habit.getStreak());
     }
 
     @Override
@@ -72,7 +74,7 @@ public class HabitServiceImpl implements HabitService {
         var spec = StreakProgressSpecifications.byStreakId(streak.getId())
                 .and(StreakProgressSpecifications.timestampAfter(tenDaysAgoStart));
 
-        var history = progressRepository.findAll(spec, Sort.by("timestamp"));
+        var history = streakProgressRepository.findAll(spec, Sort.by("timestamp"));
         streak.setHistory(history);
     }
 

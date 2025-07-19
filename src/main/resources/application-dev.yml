@@ -10,6 +10,13 @@ spring:
     hibernate:
       format_sql: true
       ddl-auto: update
+    properties:
+      hibernate:
+        generate_statistics: true
+        jdbc:
+          batch_size: 50
+        order_inserts: true
+        order_updates: true
 cors:
   allowed-origins:
     - http://localhost:5173
