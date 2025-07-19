@@ -1,0 +1,25 @@
+name: Wake and Run Cron Task
+
+on:
+  schedule:
+    - cron: '0 * * * *'
+  workflow_dispatch:
+
+jobs:
+  wake-and-run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wake up the app
+        run: |
+          echo "Waking up the Render app..."
+          curl -s -H "X-Cron-Secret: ${{ secrets.CRON_SECRET_TOKEN }}" https://lingosphinx-gamification-api.onrender.com/schedule/habit/reset > /dev/null
+
+      - name: Wait for app to wake
+        run: |
+          echo "Waiting for 60 seconds..."
+          sleep 60
+
+      - name: Call cron endpoint
+        run: |
+          echo "Calling cron task endpoint..."
+          curl -s -H "X-Cron-Secret: ${{ secrets.CRON_SECRET_TOKEN }}" https://lingosphinx-gamification-api.onrender.com/schedule/habit/reset
