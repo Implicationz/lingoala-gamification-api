@@ -12,7 +12,7 @@ jobs:
       - name: Wake up the app
         run: |
           echo "Waking up the Render app..."
-          curl POST https://lingosphinx-gamification-api.onrender.com/schedule/habit/reset -s -H "X-Cron-Secret: ${{ secrets.CRON_SECRET_TOKEN }}" > /dev/null
+          curl -s -X POST https://lingosphinx-gamification-api.onrender.com/schedule/habit/reset -H "X-Cron-Secret: ${{ secrets.CRON_SECRET_TOKEN }}" > /dev/null
 
       - name: Wait for app to wake
         run: |
@@ -22,4 +22,4 @@ jobs:
       - name: Call schedule endpoint
         run: |
           echo "Calling schedule endpoint..."
-          curl POST https://lingosphinx-gamification-api.onrender.com/schedule/habit/reset -s -H "X-Cron-Secret: ${{ secrets.CRON_SECRET_TOKEN }}"
+          curl -s -X POST https://lingosphinx-gamification-api.onrender.com/schedule/habit/reset -H "X-Cron-Secret: ${{ secrets.CRON_SECRET_TOKEN }}"
