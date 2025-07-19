@@ -1,0 +1,26 @@
+name: Cron Remind
+
+on:
+  schedule:
+    - cron: '0 18 * * *'  # 18:00 UTC
+    - cron: '0 22 * * *'  # 22:00 UTC
+  workflow_dispatch:
+
+jobs:
+  run-remind:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wake app
+        run: |
+          echo "Waking up the Render app..."
+          curl -s -H -POST "X-Cron-Secret: ${{ secrets.CRON_SECRET_TOKEN }}"  https://lingosphinx-gamification-api.onrender.com/schedule/habit/remind > /dev/null
+
+      - name: Wait for app to wake
+        run: |
+          echo "Waiting for 60 seconds..."
+          sleep 60
+
+      - name: Call schedule endpoint
+        run: |
+          echo "Calling schedule endpoint..."
+          curl -s -H -POST "X-Cron-Secret: ${{ secrets.CRON_SECRET_TOKEN }}"  https://lingosphinx-gamification-api.onrender.com/schedule/habit/remind
