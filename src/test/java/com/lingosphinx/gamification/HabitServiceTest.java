@@ -2,12 +2,13 @@ package com.lingosphinx.gamification;
 
 import com.lingosphinx.gamification.domain.ProgressValue;
 import com.lingosphinx.gamification.domain.RenewalType;
-import com.lingosphinx.gamification.domain.Streak;
 import com.lingosphinx.gamification.dto.*;
-import com.lingosphinx.gamification.repository.GoalDefinitionRepository;
+import com.lingosphinx.gamification.repository.ContestantRepository;
+import com.lingosphinx.gamification.repository.HabitDefinitionRepository;
 import com.lingosphinx.gamification.repository.GoalRepository;
 import com.lingosphinx.gamification.repository.HabitRepository;
-import com.lingosphinx.gamification.service.GoalDefinitionService;
+import com.lingosphinx.gamification.service.ContestantService;
+import com.lingosphinx.gamification.service.HabitDefinitionService;
 import com.lingosphinx.gamification.service.GoalService;
 import com.lingosphinx.gamification.service.HabitService;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,13 +46,13 @@ class HabitServiceTest {
     }
 
     @Autowired
-    private GoalService goalService;
+    private ContestantService contestantService;
     @Autowired
-    private GoalRepository goalRepository;
+    private ContestantRepository contestantRepository;
     @Autowired
-    private GoalDefinitionService goalDefinitionService;
+    private HabitDefinitionService habitDefinitionService;
     @Autowired
-    private GoalDefinitionRepository goalDefinitionRepository;
+    private HabitDefinitionRepository habitDefinitionRepository;
     @Autowired
     private HabitService habitService;
     @Autowired
@@ -60,39 +61,34 @@ class HabitServiceTest {
     @BeforeEach
     void cleanUp() {
         habitRepository.deleteAll();
-        goalRepository.deleteAll();
-        goalDefinitionRepository.deleteAll();
+        contestantRepository.deleteAll();
+        habitDefinitionRepository.deleteAll();
     }
 
-    private GoalDefinitionDto createSampleGoalDefinition(String name) {
-        GoalDefinitionDto dto = new GoalDefinitionDto();
+    private HabitDefinitionDto createSampleHabitDefinition(String name) {
+        HabitDefinitionDto dto = new HabitDefinitionDto();
         dto.setName(name);
-        dto.setType(GoalTypeDto.builder().name("type_" + name).build());
         dto.setZone(GoalZoneDto.builder().name("zone_" + name).build());
-        dto.setReference("ref_" + name);
-        dto.setWorth(10);
         dto.setTarget(ProgressValue.valueOf(5));
         dto.setImage("img.png");
-        return goalDefinitionService.create(dto);
+        return habitDefinitionService.create(dto);
     }
 
-    private GoalDto createSampleGoal(String goalDefName, UUID userId) {
-        GoalDefinitionDto def = createSampleGoalDefinition(goalDefName);
-        GoalDto dto = new GoalDto();
-        dto.setDefinition(def);
-        dto.setUserId(userId);
-        dto.setProgress(ProgressValue.valueOf(5));
-        return goalService.create(dto);
+    private ContestantDto createSampleContestant(UUID userId) {
+        var contestant = ContestantDto.builder().userId(userId).build();
+        return contestantService.create(contestant);
     }
 
     private HabitDto createSampleHabit(String goalDefName, UUID userId) {
-        GoalDto goal = createSampleGoal(goalDefName, userId);
+        HabitDefinitionDto def = createSampleHabitDefinition(goalDefName);
         var streak = StreakDto.builder()
                 .renewalType(RenewalType.NEVER)
                 .duration(0L)
                 .build();
+        var contestant = createSampleContestant(userId);
         HabitDto dto = new HabitDto();
-        dto.setGoal(goal);
+        dto.setContestant(contestant);
+        dto.setDefinition(def);
         dto.setStreak(streak);
         return habitService.create(dto);
     }
@@ -102,8 +98,8 @@ class HabitServiceTest {
         UUID userId = UUID.randomUUID();
         var saved = createSampleHabit("HabitGoal", userId);
         assertNotNull(saved.getId());
-        assertEquals("HabitGoal", saved.getGoal().getDefinition().getName());
-        assertEquals(userId, saved.getGoal().getUserId());
+        assertEquals("HabitGoal", saved.getDefinition().getName());
+        assertEquals(userId, saved.getContestant().getUserId());
         assertNotNull(saved.getStreak());
     }
 
@@ -113,8 +109,8 @@ class HabitServiceTest {
         var saved = createSampleHabit("ReadHabit", userId);
         var found = habitService.readById(saved.getId());
         assertNotNull(found);
-        assertEquals("ReadHabit", found.getGoal().getDefinition().getName());
-        assertEquals(userId, found.getGoal().getUserId());
+        assertEquals("ReadHabit", found.getDefinition().getName());
+        assertEquals(userId, found.getContestant().getUserId());
     }
 
     @Test
@@ -125,8 +121,8 @@ class HabitServiceTest {
         createSampleHabit("Habit2", userId2);
         List<HabitDto> all = habitService.readAll();
         assertEquals(2, all.size());
-        assertTrue(all.stream().anyMatch(h -> "Habit1".equals(h.getGoal().getDefinition().getName())));
-        assertTrue(all.stream().anyMatch(h -> "Habit2".equals(h.getGoal().getDefinition().getName())));
+        assertTrue(all.stream().anyMatch(h -> "Habit1".equals(h.getDefinition().getName())));
+        assertTrue(all.stream().anyMatch(h -> "Habit2".equals(h.getDefinition().getName())));
     }
 
     @Test

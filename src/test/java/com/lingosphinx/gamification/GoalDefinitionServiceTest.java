@@ -56,7 +56,7 @@ class GoalDefinitionServiceTest {
         dto.setType(GoalTypeDto.builder().name("type_" + name).build());
         dto.setZone(GoalZoneDto.builder().name("zone_" + name).build());
         dto.setReference("ref_" + name);
-        dto.setWorth(10);
+        dto.setWorth(ProgressValue.valueOf(10));
         dto.setTarget(ProgressValue.valueOf(5));
         dto.setImage("img.png");
         return goalDefinitionService.create(dto);

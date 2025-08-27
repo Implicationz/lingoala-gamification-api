@@ -1,14 +1,13 @@
 package com.lingosphinx.gamification;
 
 import com.lingosphinx.gamification.domain.ProgressValue;
-import com.lingosphinx.gamification.dto.GoalDefinitionDto;
-import com.lingosphinx.gamification.dto.GoalDto;
-import com.lingosphinx.gamification.dto.GoalTypeDto;
-import com.lingosphinx.gamification.dto.GoalZoneDto;
+import com.lingosphinx.gamification.dto.*;
 import com.lingosphinx.gamification.repository.GoalRepository;
 import com.lingosphinx.gamification.repository.GoalDefinitionRepository;
+import com.lingosphinx.gamification.repository.ContestantRepository;
 import com.lingosphinx.gamification.service.GoalService;
 import com.lingosphinx.gamification.service.GoalDefinitionService;
+import com.lingosphinx.gamification.service.ContestantService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,10 +54,22 @@ class GoalServiceTest {
     @Autowired
     private GoalDefinitionRepository goalDefinitionRepository;
 
+    @Autowired
+    private ContestantService contestantService;
+
+    @Autowired
+    private ContestantRepository contestantRepository;
+
     @BeforeEach
     void cleanUp() {
         goalRepository.deleteAll();
         goalDefinitionRepository.deleteAll();
+        contestantRepository.deleteAll();
+    }
+
+    private ContestantDto createSampleContestant(UUID userId) {
+        var contestant = ContestantDto.builder().userId(userId).build();
+        return contestantService.create(contestant);
     }
 
     private GoalDefinitionDto createSampleGoalDefinition(String name) {
@@ -67,11 +78,20 @@ class GoalServiceTest {
         dto.setType(GoalTypeDto.builder().name("type_" + name).build());
         dto.setZone(GoalZoneDto.builder().name("zone_" + name).build());
         dto.setReference("ref_" + name);
-        dto.setWorth(10);
+        dto.setWorth(ProgressValue.valueOf(10));
         dto.setTarget(ProgressValue.valueOf(5));
-
         dto.setImage("img.png");
         return goalDefinitionService.create(dto);
+    }
+
+    private GoalDto createSampleGoal(String goalDefName, UUID userId) {
+        GoalDefinitionDto def = createSampleGoalDefinition(goalDefName);
+        ContestantDto contestant = createSampleContestant(userId);
+        GoalDto dto = new GoalDto();
+        dto.setDefinition(def);
+        dto.setContestant(contestant);
+        dto.setProgress(ProgressValue.valueOf(5));
+        return goalService.create(dto);
     }
 
     @Test
@@ -84,22 +104,13 @@ class GoalServiceTest {
         assertEquals("ref_TestGoal", saved.getReference());
     }
 
-    private GoalDto createSampleGoal(String goalDefName, UUID userId) {
-        GoalDefinitionDto def = createSampleGoalDefinition(goalDefName);
-        GoalDto dto = new GoalDto();
-        dto.setDefinition(def);
-        dto.setUserId(userId);
-        dto.setProgress(ProgressValue.valueOf(5));
-        return goalService.create(dto);
-    }
-
     @Test
     void createGoal_shouldPersistGoal() {
         var userId = UUID.randomUUID();
         var saved = createSampleGoal("TestGoal", userId);
         assertNotNull(saved.getId());
         assertEquals("TestGoal", saved.getDefinition().getName());
-        assertEquals(userId, saved.getUserId());
+        assertEquals(userId, saved.getContestant().getUserId());
     }
 
     @Test
@@ -109,6 +120,7 @@ class GoalServiceTest {
         var found = goalService.readById(saved.getId());
         assertNotNull(found);
         assertEquals("ReadGoal", found.getDefinition().getName());
+        assertEquals(userId, found.getContestant().getUserId());
     }
 
     @Test

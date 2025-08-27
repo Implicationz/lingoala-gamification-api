@@ -2,3 +2,19 @@ spring:
   jpa:
     hibernate:
       ddl-auto: create-drop
+notification:
+  client:
+    url: http://localhost:8084
+cors:
+  allowed-origins:
+    - http://localhost:5173
+    - capacitor://localhost
+    - http://localhost
+    - https://localhost
+lingosphinx:
+  gamification:
+    api-key: TEST_KEY
+jwt:
+  secret: JWT_TEST_SECRET
+cron:
+  secret: ${CRON_SECRET:test-secret}
