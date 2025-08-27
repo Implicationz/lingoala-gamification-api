@@ -20,6 +20,7 @@ cors:
     - http://localhost:5173
     - capacitor://localhost
     - http://localhost
+    - https://localhost
 jwt:
   secret: ${JWT_SECRET}
 cron:
