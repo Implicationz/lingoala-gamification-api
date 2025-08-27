@@ -1,6 +1,6 @@
 package com.lingosphinx.gamification.repository;
 
-import com.lingosphinx.gamification.domain.Goal;
+import com.lingosphinx.gamification.domain.Contestant;
 import com.lingosphinx.gamification.domain.Habit;
 import com.lingosphinx.gamification.domain.RenewalType;
 import org.springframework.data.jpa.domain.Specification;
@@ -13,17 +13,6 @@ import java.time.ZoneId;
 public class HabitSpecifications {
 
     private static final ZoneId ZONE_ID = ZoneId.systemDefault();
-
-    public static Specification<Goal> byTypeNameAndReference(String type, String reference) {
-        return (root, query, cb) -> {
-            var goal = root.get("goal");
-            var goalDefinition = goal.get("definition");
-            return cb.and(
-                    cb.equal(goalDefinition.get("type").get("name"), type),
-                    cb.equal(goalDefinition.get("reference"), reference)
-            );
-        };
-    }
 
     public static Specification<Habit> incompleteProgress() {
         return (root, query, cb) -> {
@@ -81,5 +70,15 @@ public class HabitSpecifications {
                         .or(isWeeklyDue())
                         .or(isMonthlyDue())
         );
+    }
+
+    public static Specification<Habit> byZoneNameAndNameAndContestant(String zone, String name, Contestant contestant) {
+        return (root, query, cb) -> {
+            var habitDefinition = root.get("definition");
+            return cb.and(cb.equal(root.get("contestant"), contestant),
+                    cb.equal(habitDefinition.get("zone").get("name"), zone),
+                    cb.equal(habitDefinition.get("name"), name)
+            );
+        };
     }
 }

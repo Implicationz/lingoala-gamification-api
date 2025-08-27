@@ -1,5 +1,6 @@
 package com.lingosphinx.gamification.controller;
 
+import com.lingosphinx.gamification.dto.HabitActivationDto;
 import com.lingosphinx.gamification.dto.HabitDto;
 import com.lingosphinx.gamification.service.HabitService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -19,6 +20,11 @@ public class HabitController {
 
     private final HabitService habitService;
 
+    @PostMapping("/activation")
+    public ResponseEntity<HabitDto> activation(@RequestBody @Valid HabitActivationDto habitActivation) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(habitService.activate(habitActivation));
+    }
+
     @PostMapping
     public ResponseEntity<HabitDto> create(@RequestBody @Valid HabitDto habit) {
         return ResponseEntity.status(HttpStatus.CREATED).body(habitService.createByCurrentUser(habit));
@@ -29,9 +35,9 @@ public class HabitController {
         return ResponseEntity.ok(habitService.readById(id));
     }
 
-    @GetMapping("/{type}/{reference}")
-    public ResponseEntity<HabitDto> readByTypeAndReference(@PathVariable String type, @PathVariable String reference) {
-        return ResponseEntity.ok(habitService.readByTypeNameAndReference(type, reference));
+    @GetMapping("/{zone}/{name}")
+    public ResponseEntity<HabitDto> readByZoneAndName(@PathVariable String zone, @PathVariable String name) {
+        return ResponseEntity.ok(habitService.readByZoneAndName(zone, name));
     }
 
     @GetMapping

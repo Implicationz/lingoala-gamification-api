@@ -7,7 +7,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 
 @Builder
 @RequiredArgsConstructor
@@ -16,9 +15,9 @@ import java.util.UUID;
 @Setter
 @Entity
 @Table(
-        uniqueConstraints = @UniqueConstraint(columnNames = {"definition_id", "user_id"}),
+        uniqueConstraints = @UniqueConstraint(columnNames = {"definition_id", "contestant_id"}),
         indexes = {
-                @Index(name = "idx_goal_user_id", columnList = "user_id")
+                @Index(name = "idx_goal_contestant_id", columnList = "contestant_id")
         }
 )
 public class Goal {
@@ -28,14 +27,13 @@ public class Goal {
     private Long id;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "definition_id")
     private GoalDefinition definition;
 
     @ManyToOne(optional = true)
     private Goal parent;
 
-    @Column(name = "user_id", nullable = false)
-    private UUID userId;
+    @ManyToOne(optional = false)
+    private Contestant contestant;
 
     @Builder.Default
     private ProgressValue progress = ProgressValue.valueOf(0);
@@ -46,6 +44,15 @@ public class Goal {
     @Builder.Default
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Goal> children = new ArrayList<>();
+
+    public static Goal fromDefinition(GoalDefinition definition) {
+        return Goal.builder()
+                .definition(definition)
+                .progress(ProgressValue.ZERO)
+                .lastProgress(Instant.EPOCH)
+                .children(new ArrayList<>())
+                .build();
+    }
 
     public void reset() {
         setProgress(ProgressValue.ZERO);
@@ -76,19 +83,6 @@ public class Goal {
 
     public void setTarget(ProgressValue value) {
         definition.setTarget(value);
-    }
-
-    public boolean advance(int byCount) {
-        return advanceTo(new ProgressValue(this.progress.getValue() + byCount));
-    }
-
-    public boolean advanceTo(ProgressValue toCount) {
-        boolean wasComplete = isComplete();
-        this.progress = toCount;
-        boolean isComplete = isComplete();
-        this.lastProgress = Instant.now();
-        boolean streakUpdate = !wasComplete && isComplete;
-        return streakUpdate;
     }
 
     public long resting() {
@@ -144,7 +138,8 @@ public class Goal {
         return gnode != null && gnode.isComplete();
     }
 
-    public void apply(Progress progress) {
-        this.progress = progress.getValue();
+    public void apply(GoalProgress goalProgress) {
+        this.progress = goalProgress.getValue();
+        this.lastProgress = Instant.now();
     }
 }

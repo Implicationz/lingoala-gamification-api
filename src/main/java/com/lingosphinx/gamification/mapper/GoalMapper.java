@@ -1,7 +1,9 @@
 package com.lingosphinx.gamification.mapper;
 
+import com.lingosphinx.gamification.domain.Contestant;
 import com.lingosphinx.gamification.domain.Goal;
 import com.lingosphinx.gamification.domain.GoalDefinition;
+import com.lingosphinx.gamification.dto.ContestantDto;
 import com.lingosphinx.gamification.dto.GoalDefinitionDto;
 import com.lingosphinx.gamification.dto.GoalDto;
 import org.mapstruct.Mapper;
@@ -23,7 +25,13 @@ public interface GoalMapper {
     @Mapping(target = "parent", ignore = true)
     GoalDefinition toEntity(GoalDefinitionDto dto);
 
+    @Mapping(target = "experiences", ignore = true)
+    ContestantDto toDto(Contestant entity);
+    @Mapping(target = "experiences", ignore = true)
+    Contestant toEntity(ContestantDto dto);
+
     List<GoalDto> toDtoList(List<Goal> entities);
 
     void toEntityFromDto(GoalDto goalDto, @MappingTarget  Goal existingGoal);
+
 }

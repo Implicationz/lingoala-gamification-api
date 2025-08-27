@@ -3,12 +3,14 @@ package com.lingosphinx.gamification.service;
 import com.lingosphinx.gamification.domain.Streak;
 import com.lingosphinx.gamification.domain.StreakProgress;
 import com.lingosphinx.gamification.dto.StreakDto;
+import com.lingosphinx.gamification.event.HabitCompletedEvent;
 import com.lingosphinx.gamification.exception.ResourceNotFoundException;
 import com.lingosphinx.gamification.mapper.StreakMapper;
-import com.lingosphinx.gamification.repository.StreakRepository;
 import com.lingosphinx.gamification.repository.StreakProgressRepository;
+import com.lingosphinx.gamification.repository.StreakRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +27,13 @@ public class StreakServiceImpl implements StreakService {
     private final StreakMapper streakMapper;
     private final StreakProgressRepository streakProgressRepository;
 
+    @EventListener
+    @Transactional
+    protected void handleHabitCompletedEvent(HabitCompletedEvent event) {
+        var habit = event.getHabit();
+        var streak = habit.getStreak();
+        this.progress(streak);
+    }
 
     @Override
     public StreakDto create(StreakDto streakDto) {
@@ -76,7 +85,8 @@ public class StreakServiceImpl implements StreakService {
                 .streak(streak)
                 .timestamp(now)
                 .build();
-
+        streak.apply(progress);
         this.streakProgressRepository.save(progress);
+        log.info("Streak progressed successfully: id={}", streak.getId());
     }
 }

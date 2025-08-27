@@ -20,11 +20,6 @@ public class Streak {
     private Long id;
 
     @Builder.Default
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private RenewalType renewalType = RenewalType.NEVER;
-
-    @Builder.Default
     @Column(nullable = false)
     private Instant lastProgress = Instant.EPOCH;
 
@@ -32,12 +27,17 @@ public class Streak {
     @Column(nullable = false)
     private long duration = 0;
 
+    @Builder.Default
+    @Column(nullable = false)
+    private long longestDuration = 0;
+
     @BatchSize(size = 10)
     @OneToMany(mappedBy = "streak", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<StreakProgress> history;
 
     public void apply(StreakProgress progress) {
         this.duration += 1;
+        this.longestDuration = Math.max(this.longestDuration, this.duration);
         this.lastProgress = progress.getTimestamp();
     }
 

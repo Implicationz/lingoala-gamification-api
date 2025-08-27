@@ -1,17 +1,15 @@
 package com.lingosphinx.gamification.service;
 
 import com.lingosphinx.gamification.domain.Habit;
+import com.lingosphinx.gamification.dto.HabitActivationDto;
 import com.lingosphinx.gamification.dto.HabitDto;
-import com.lingosphinx.gamification.event.GoalCompletedEvent;
+import com.lingosphinx.gamification.event.HabitCompletedEvent;
 import com.lingosphinx.gamification.exception.ResourceNotFoundException;
 import com.lingosphinx.gamification.mapper.HabitMapper;
-import com.lingosphinx.gamification.repository.HabitRepository;
-import com.lingosphinx.gamification.repository.HabitSpecifications;
-import com.lingosphinx.gamification.repository.StreakProgressRepository;
-import com.lingosphinx.gamification.repository.StreakProgressSpecifications;
+import com.lingosphinx.gamification.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.event.EventListener;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,23 +25,13 @@ import java.util.List;
 public class HabitServiceImpl implements HabitService {
 
     private final HabitRepository habitRepository;
+    private final HabitDefinitionRepository habitDefinitionRepository;
     private final HabitMapper habitMapper;
 
     private final StreakProgressRepository streakProgressRepository;
     private final StreakService streakService;
-    private final UserService userService;
-
-    @EventListener
-    public void onGoalCompleted(GoalCompletedEvent event) {
-        var goal = event.getGoal();
-        var habitOpt = habitRepository.findByGoal(goal);
-        if (habitOpt.isEmpty()) {
-            return;
-        }
-
-        var habit = habitOpt.get();
-        streakService.progress(habit.getStreak());
-    }
+    private final ContestantService contestantService;
+    private final ApplicationEventPublisher publisher;
 
     @Override
     public HabitDto create(HabitDto habitDto) {
@@ -56,10 +44,10 @@ public class HabitServiceImpl implements HabitService {
     @Override
     public HabitDto createByCurrentUser(HabitDto habitDto) {
         var habit = habitMapper.toEntity(habitDto);
-        var userId = userService.getCurrentUserId();
-        habit.getGoal().setUserId(userId);
+        var contestant = contestantService.readCurrentContestant();
+        habit.setContestant(contestant);
         var savedHabit = habitRepository.save(habit);
-        log.info("Habit created successfully for user={}: id={}", userId, savedHabit.getId());
+        log.info("Habit created successfully for user={}: id={}", contestant.getUserId(), savedHabit.getId());
         return habitMapper.toDto(savedHabit);
     }
 
@@ -86,14 +74,15 @@ public class HabitServiceImpl implements HabitService {
         fetchStreakHistory(habit);
         return this.habitMapper.toDto(habit);
     }
-
+    
     @Override
     @Transactional(readOnly = true)
-    public HabitDto readByTypeNameAndReference(String type, String reference) {
-        var spec = HabitSpecifications.byTypeNameAndReference(type, reference);
+    public HabitDto readByZoneAndName(String zone, String name) {
+        var contestant = contestantService.readCurrentContestant();
+        var spec = HabitSpecifications.byZoneNameAndNameAndContestant(zone, name, contestant);
         var habit = habitRepository.findOne(spec)
-                .orElseThrow(() -> new ResourceNotFoundException("Habit not found for type=" + type + " and reference=" + reference));
-        log.info("Habit read by type and reference: type={}, reference={}, id={}", type, reference, habit.getId());
+                .orElseThrow(() -> new ResourceNotFoundException("Habit not found for zone=" + zone + " and name=" + name + " and contestant=" + contestant.getId()));
+        log.info("Habit read by zone, name and contestant: zone={}, name={}, contestant={}, id={}", zone, name, contestant.getId(), habit.getId());
         fetchStreakHistory(habit);
         return habitMapper.toDto(habit);
     }
@@ -113,7 +102,12 @@ public class HabitServiceImpl implements HabitService {
         var existingHabit = habitRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Habit not found"));
 
-        habitMapper.toEntityFromDto(habitDto, existingHabit);
+        var wasComplete = existingHabit.isComplete();
+        existingHabit.setProgress(habitDto.getProgress());
+
+        if(wasComplete && existingHabit.isComplete()) {
+            publisher.publishEvent(new HabitCompletedEvent(existingHabit));
+        }
         log.info("Habit updated successfully: id={}", existingHabit.getId());
         return habitMapper.toDto(existingHabit);
     }
@@ -136,5 +130,22 @@ public class HabitServiceImpl implements HabitService {
         log.info("Habit reset started for {} habits", habits.size());
         habits.forEach(this::reset);
         log.info("Habit reset completed {} habits", habits.size());
+    }
+
+    @Override
+    public HabitDto activate(HabitActivationDto habitActivation) {
+        var contestant = contestantService.readCurrentContestant();
+        var spec = HabitSpecifications.byZoneNameAndNameAndContestant(habitActivation.getZone(), habitActivation.getName(), contestant);
+        var found = habitRepository.findOne(spec);
+        var activated = found.orElseGet(() -> {
+            var definition = habitDefinitionRepository.findByZone_NameAndName(habitActivation.getZone(), habitActivation.getName())
+                    .orElseThrow(() -> new IllegalArgumentException("HabitDefinition is invalid."));
+            var habit = Habit.fromDefinition(definition);
+            habit.setContestant(contestant);
+            var savedGoal = habitRepository.save(habit);
+            log.info("Goal activated successfully: id={}", savedGoal.getId());
+            return savedGoal;
+        });
+        return this.habitMapper.toDto(activated);
     }
 }

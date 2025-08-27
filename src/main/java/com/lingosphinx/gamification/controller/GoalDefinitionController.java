@@ -1,6 +1,7 @@
 package com.lingosphinx.gamification.controller;
 
 import com.lingosphinx.gamification.dto.GoalDefinitionDto;
+import com.lingosphinx.gamification.dto.GoalDefinitionRegistrationDto;
 import com.lingosphinx.gamification.service.GoalDefinitionService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -18,6 +19,11 @@ import java.util.List;
 public class GoalDefinitionController {
 
     private final GoalDefinitionService goalDefinitionService;
+
+    @PostMapping("/registration")
+    public ResponseEntity<GoalDefinitionDto> registration(@RequestBody @Valid GoalDefinitionRegistrationDto goalDefinitionRegistration) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(goalDefinitionService.register(goalDefinitionRegistration));
+    }
 
     @PostMapping
     public ResponseEntity<GoalDefinitionDto> create(@RequestBody @Valid GoalDefinitionDto goalDefinition) {

@@ -28,8 +28,8 @@ public class HabitReminderNotificationServiceImpl {
         var habit = habitReminder.getHabit();
         return NotificationDto.builder()
                 .title("Habit Reminder")
-                .message("Reminder for habit: " + habit.getName())
-                .receiver(habit.getGoal().getUserId())
+                .message("Reminder for habit: " + habit.getDefinition().getName())
+                .receiver(habit.getContestant().getUserId())
                 .build();
     }
 

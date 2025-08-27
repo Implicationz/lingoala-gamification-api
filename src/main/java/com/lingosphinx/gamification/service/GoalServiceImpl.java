@@ -1,8 +1,11 @@
 package com.lingosphinx.gamification.service;
 
+import com.lingosphinx.gamification.domain.Goal;
+import com.lingosphinx.gamification.dto.GoalActivationDto;
 import com.lingosphinx.gamification.dto.GoalDto;
 import com.lingosphinx.gamification.exception.ResourceNotFoundException;
 import com.lingosphinx.gamification.mapper.GoalMapper;
+import com.lingosphinx.gamification.repository.GoalDefinitionRepository;
 import com.lingosphinx.gamification.repository.GoalRepository;
 import com.lingosphinx.gamification.repository.GoalSpecifications;
 import lombok.RequiredArgsConstructor;
@@ -19,8 +22,9 @@ import java.util.List;
 public class GoalServiceImpl implements GoalService {
 
     private final GoalRepository goalRepository;
+    private final GoalDefinitionRepository goalDefinitionRepository;
     private final GoalMapper goalMapper;
-    private final UserService userService;
+    private final ContestantService contestantService;
 
     @Override
     public GoalDto create(GoalDto goalDto) {
@@ -31,12 +35,12 @@ public class GoalServiceImpl implements GoalService {
     }
 
     @Override
-    public GoalDto createByCurrentUser(GoalDto goalDto) {
+    public GoalDto createByCurrentContestant(GoalDto goalDto) {
         var goal = goalMapper.toEntity(goalDto);
-        var userId = userService.getCurrentUserId();
-        goal.setUserId(userId);
+        var contestant = contestantService.readCurrentContestant();
+        goal.setContestant(contestant);
         var savedGoal = goalRepository.save(goal);
-        log.info("Goal created successfully for user={}: id={}",  userId, savedGoal.getId());
+        log.info("Goal created successfully for user={}: id={}",  contestant.getUserId(), savedGoal.getId());
         return goalMapper.toDto(savedGoal);
     }
 
@@ -94,5 +98,24 @@ public class GoalServiceImpl implements GoalService {
                 .toList();
         log.info("Goals read by zone and type: zone={}, type={}, count={}", zone, type, goals.size());
         return goals;
+    }
+
+    @Override
+    public GoalDto activate(GoalActivationDto goalActivation) {
+        var contestant = contestantService.readCurrentContestant();
+        var spec = GoalSpecifications.byZoneTypeNameAndReferenceAndContestant(goalActivation.getZone(), goalActivation.getType(), goalActivation.getReference(), contestant);
+        var found = goalRepository.findOne(spec);
+        var activated = found.orElseGet(() -> {
+            var definition = goalDefinitionRepository.findByZone_NameAndType_NameAndReference(goalActivation.getZone(),
+                            goalActivation.getType(), 
+                            goalActivation.getReference())
+                    .orElseThrow();
+            var goal = Goal.fromDefinition(definition);
+            goal.setContestant(contestant);
+            var savedGoal = goalRepository.save(goal);
+            log.info("Goal activated successfully: id={}", savedGoal.getId());
+            return savedGoal;
+        });
+        return this.goalMapper.toDto(activated);
     }
 }

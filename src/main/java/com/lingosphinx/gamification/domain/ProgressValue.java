@@ -2,6 +2,8 @@ package com.lingosphinx.gamification.domain;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.lingosphinx.gamification.jackson.ProgressValueDeserializer;
+import com.lingosphinx.gamification.jackson.ProgressValueSerializer;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

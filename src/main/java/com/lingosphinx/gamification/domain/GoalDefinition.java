@@ -2,6 +2,7 @@ package com.lingosphinx.gamification.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.BatchSize;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,7 +10,7 @@ import java.util.Objects;
 
 @Entity
 @Table(
-        uniqueConstraints = @UniqueConstraint(columnNames = {"type", "reference"}),
+        uniqueConstraints = @UniqueConstraint(columnNames = {"zone_id", "type_id", "reference"}),
         indexes = {
                 @Index(name = "idx_goaldefinition_zone", columnList = "zone_id"),
                 @Index(name = "idx_goaldefinition_type", columnList = "type_id"),
@@ -42,10 +43,16 @@ public class GoalDefinition {
     private GoalType type;
 
     private String reference = "";
-    private int worth = 1;
+    @Builder.Default
+    private ProgressValue worth = ProgressValue.valueOf(1);
+    @Builder.Default
     private ProgressValue target = ProgressValue.valueOf(1);
     private String image = "";
 
+    @Builder.Default
+    private ExperienceValue experience = ExperienceValue.ZERO;
+
+    @BatchSize(size = 20)
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<GoalDefinition> children = new ArrayList<>();
 

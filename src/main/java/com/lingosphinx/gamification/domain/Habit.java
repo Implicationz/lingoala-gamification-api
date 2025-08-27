@@ -15,21 +15,33 @@ public class Habit {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "goal_id", unique = true)
-    private Goal goal;
+    @ManyToOne
+    private HabitDefinition definition;
+
+    @ManyToOne
+    private Contestant contestant;
 
     @Builder.Default
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "streak_id", unique = true)
+    @JoinColumn(unique = true)
     private Streak streak = new Streak();
 
-    public String getName() {
-        return goal.getDefinition().getName();
-    };
+    private ProgressValue progress = ProgressValue.ZERO;
+
+    public static Habit fromDefinition(HabitDefinition definition) {
+        return Habit.builder()
+                .definition(definition)
+                .streak(new Streak())
+                .progress(ProgressValue.valueOf(1))
+                .build();
+    }
 
     public void reset() {
-        this.goal.reset();
+        this.progress = ProgressValue.ZERO;
         this.streak.reset();
+    }
+
+    public boolean isComplete() {
+        return this.progress.getValue() >= this.definition.getTarget().getValue();
     }
 }

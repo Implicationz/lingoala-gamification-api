@@ -1,5 +1,6 @@
 package com.lingosphinx.gamification.controller;
 
+import com.lingosphinx.gamification.dto.GoalActivationDto;
 import com.lingosphinx.gamification.dto.GoalDto;
 import com.lingosphinx.gamification.service.GoalService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -19,9 +20,14 @@ public class GoalController {
 
     private final GoalService goalService;
 
+    @PostMapping("/activation")
+    public ResponseEntity<GoalDto> activation(@RequestBody @Valid GoalActivationDto goalDefinitionActivation) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(goalService.activate(goalDefinitionActivation));
+    }
+
     @PostMapping
     public ResponseEntity<GoalDto> create(@RequestBody @Valid GoalDto goal) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(goalService.createByCurrentUser(goal));
+        return ResponseEntity.status(HttpStatus.CREATED).body(goalService.createByCurrentContestant(goal));
     }
 
     @GetMapping("/{id}")

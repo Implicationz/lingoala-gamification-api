@@ -1,11 +1,16 @@
 package com.lingosphinx.gamification.dto;
 
+import com.lingosphinx.gamification.domain.ExperienceValue;
 import com.lingosphinx.gamification.domain.ProgressValue;
-import lombok.Data;
+import lombok.*;
 
 import java.util.List;
 
-@Data
+@Builder
+@RequiredArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
 public class GoalDefinitionDto {
     private Long id;
     private GoalDefinitionDto parent;
@@ -13,8 +18,12 @@ public class GoalDefinitionDto {
     private GoalTypeDto type;
     private String name;
     private String reference;
-    private int worth;
-    private ProgressValue target;
+    @Builder.Default
+    private ProgressValue worth = ProgressValue.valueOf(1);
+    @Builder.Default
+    private ProgressValue target = ProgressValue.valueOf(1);
+    @Builder.Default
+    private ExperienceValue experience = ExperienceValue.ZERO;
     private String image;
     private List<GoalDefinitionDto> children;
 }

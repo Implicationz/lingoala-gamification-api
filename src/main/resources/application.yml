@@ -8,3 +8,6 @@ spring:
 notification:
   client:
     url: ${NOTIFICATION_CLIENT_URL}
+lingosphinx:
+    gamification:
+      api-key: ${GAMIFICATION_API_KEY}

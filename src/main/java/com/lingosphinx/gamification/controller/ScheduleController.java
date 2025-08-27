@@ -3,6 +3,7 @@ package com.lingosphinx.gamification.controller;
 import com.lingosphinx.gamification.dto.HabitDto;
 import com.lingosphinx.gamification.service.HabitReminderService;
 import com.lingosphinx.gamification.service.HabitService;
+import com.lingosphinx.gamification.service.ScoreSnapshotService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,12 +22,14 @@ public class ScheduleController {
 
     private final HabitService habitService;
     private final HabitReminderService habitReminderService;
+    private final ScoreSnapshotService scoreSnapshotService;
+
 
     @Value("${cron.secret}")
     private String cronSecret;
 
     @PostMapping("/habit/reset")
-    public ResponseEntity<HabitDto> resetAll(@RequestHeader("X-CRON-SECRET") String secret) {
+    public ResponseEntity<Void> resetAll(@RequestHeader("X-CRON-SECRET") String secret) {
         if (!cronSecret.equals(secret)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
@@ -35,11 +38,20 @@ public class ScheduleController {
     }
 
     @PostMapping("/habit/remind")
-    public ResponseEntity<HabitDto> remindAll(@RequestHeader("X-CRON-SECRET") String secret) {
+    public ResponseEntity<Void> remindAll(@RequestHeader("X-CRON-SECRET") String secret) {
         if (!cronSecret.equals(secret)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
         habitReminderService.remindAll();
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/snapshot/regenerate")
+    public ResponseEntity<Void> regenerateAll(@RequestHeader("X-CRON-SECRET") String secret) {
+        if (!cronSecret.equals(secret)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        scoreSnapshotService.regenerateAll();
         return ResponseEntity.ok().build();
     }
 }

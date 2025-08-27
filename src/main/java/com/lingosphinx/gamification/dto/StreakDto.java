@@ -22,5 +22,7 @@ public class StreakDto {
     @Builder.Default
     private long duration = 0;
     @Builder.Default
+    private long longestDuration = 0;
+    @Builder.Default
     private List<StreakProgressDto> history = new ArrayList<>();
 }

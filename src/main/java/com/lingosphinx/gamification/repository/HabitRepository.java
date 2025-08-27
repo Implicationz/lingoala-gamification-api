@@ -1,7 +1,6 @@
 package com.lingosphinx.gamification.repository;
 
 
-import com.lingosphinx.gamification.domain.Goal;
 import com.lingosphinx.gamification.domain.Habit;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.EntityGraph;
@@ -13,18 +12,15 @@ import java.util.Optional;
 
 public interface HabitRepository extends JpaRepository<Habit, Long>, JpaSpecificationExecutor<Habit> {
 
-    @EntityGraph(attributePaths = {"goal", "goal.definition", "streak"})
-    Optional<Habit> findByGoal(Goal goal);
-
-    @EntityGraph(attributePaths = {"goal", "goal.definition", "streak"})
+    @EntityGraph(attributePaths = {"definition", "streak"})
     Optional<Habit> findById(Long id);
 
-    @EntityGraph(attributePaths = {"goal", "goal.definition", "streak"})
+    @EntityGraph(attributePaths = {"definition", "streak"})
     List<Habit> findAll();
 
-    @EntityGraph(attributePaths = {"goal", "goal.definition", "streak"})
+    @EntityGraph(attributePaths = {"definition", "streak"})
     List<Habit> findAll(Specification spec);
     
-    @EntityGraph(attributePaths = {"goal", "goal.definition", "streak"})
+    @EntityGraph(attributePaths = {"definition", "streak"})
     Optional<Habit> findOne(Specification spec);
 }
