@@ -1,3 +1,4 @@
+# .github/workflows/habit-reset.yml
 name: Habit Reset
 
 on:
@@ -8,11 +9,13 @@ on:
 jobs:
   wake-and-run:
     runs-on: ubuntu-latest
+    env:
+      REMOTE_BASE_URL: ${{ vars.REMOTE_BASE_URL }}
     steps:
       - name: Wake up the app
         run: |
           echo "Waking up the Render app..."
-          curl -s https://lingosphinx-gamification-api.onrender.com/actuator/health > /dev/null
+          curl -s $REMOTE_BASE_URL/actuator/health > /dev/null
 
       - name: Wait for app to wake
         run: |
@@ -22,4 +25,4 @@ jobs:
       - name: Call schedule endpoint
         run: |
           echo "Calling schedule endpoint..."
-          curl -s -X POST https://lingosphinx-gamification-api.onrender.com/schedule/habit/reset -H "X-Cron-Secret: ${{ secrets.CRON_SECRET_TOKEN }}"
+          curl -s -X POST $REMOTE_BASE_URL/schedule/habit/reset -H "X-Cron-Secret: ${{ secrets.CRON_SECRET_TOKEN }}"
