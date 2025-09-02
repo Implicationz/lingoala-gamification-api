@@ -12,9 +12,9 @@ set +o allexport
 # 📝 Generate changelog from local (updated) to Neon (prod) schema
 liquibase \
   --changeLogFile=changelog/generated-changelog.xml \
-  --url="$NEON_DB_URL" \
-  --username="$NEON_DB_USER" \
-  --password="$NEON_DB_PASS" \
+  --url="$REMOTE_DB_URL" \
+  --username="$REMOTE_DB_USER" \
+  --password="$REMOTE_DB_PASS" \
   --referenceUrl="$LOCAL_DB_URL" \
   --referenceUsername="$LOCAL_DB_USER" \
   --referencePassword="$LOCAL_DB_PASS" \

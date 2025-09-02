@@ -12,7 +12,7 @@ set +o allexport
 # 🚀 Apply the changelog to Neon (prod)
 liquibase \
   --changeLogFile=changelog/generated-changelog.xml \
-  --url="$NEON_DB_URL" \
-  --username="$NEON_DB_USER" \
-  --password="$NEON_DB_PASS" \
+  --url="$REMOTE_DB_URL" \
+  --username="$REMOTE_DB_USER" \
+  --password="$REMOTE_DB_PASS" \
   update
