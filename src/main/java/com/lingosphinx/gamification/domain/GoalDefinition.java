@@ -44,12 +44,15 @@ public class GoalDefinition {
 
     private String reference = "";
     @Builder.Default
+    @Column(nullable = false)
     private ProgressValue worth = ProgressValue.valueOf(1);
     @Builder.Default
+    @Column(nullable = false)
     private ProgressValue target = ProgressValue.valueOf(1);
     private String image = "";
 
     @Builder.Default
+    @Column(nullable = false)
     private ExperienceValue experience = ExperienceValue.ZERO;
 
     @BatchSize(size = 20)

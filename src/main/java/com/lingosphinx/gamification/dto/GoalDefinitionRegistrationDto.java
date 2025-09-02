@@ -11,8 +11,8 @@ public class GoalDefinitionRegistrationDto {
     private String type;
     private String name;
     private String reference;
-    private ProgressValue worth;
-    private ProgressValue target;
+    private ProgressValue worth = ProgressValue.valueOf(1);
+    private ProgressValue target = ProgressValue.valueOf(1);
     private String image;
-    private ExperienceValue experience;
+    private ExperienceValue experience = ExperienceValue.ZERO;
 }
