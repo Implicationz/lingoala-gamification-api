@@ -12,16 +12,6 @@ jobs:
     env:
       REMOTE_BASE_URL: ${{ vars.REMOTE_BASE_URL }}
     steps:
-      - name: Wake up the app
-        run: |
-          echo "Waking up the Render app..."
-          curl -s $REMOTE_BASE_URL/actuator/health > /dev/null
-
-      - name: Wait for app to wake
-        run: |
-          echo "Waiting for 60 seconds..."
-          sleep 60
-
       - name: Call schedule endpoint
         run: |
           echo "Calling schedule endpoint..."

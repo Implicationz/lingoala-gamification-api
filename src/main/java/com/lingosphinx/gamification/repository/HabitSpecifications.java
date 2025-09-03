@@ -25,7 +25,7 @@ public class HabitSpecifications {
 
     public static Specification<Habit> isDailyDue() {
         return (root, query, cb) -> {
-            var renewalType = root.get("streak").get("renewalType");
+            var renewalType = root.get("definition").get("renewalType");
             var lastProgress = root.get("streak").get("lastProgress").as(Timestamp.class);
             var today = LocalDate.now(ZONE_ID);
             var startOfDayTimestamp = Timestamp.from(today.atStartOfDay(ZONE_ID).toInstant());
@@ -38,7 +38,7 @@ public class HabitSpecifications {
 
     public static Specification<Habit> isWeeklyDue() {
         return (root, query, cb) -> {
-            var renewalType = root.get("streak").get("renewalType");
+            var renewalType = root.get("definition").get("renewalType");
             var lastProgress = root.get("streak").get("lastProgress").as(Timestamp.class);
             var today = LocalDate.now(ZONE_ID);
             var startOfWeekTimestamp = Timestamp.from(today.with(DayOfWeek.MONDAY).atStartOfDay(ZONE_ID).toInstant());
@@ -51,7 +51,7 @@ public class HabitSpecifications {
 
     public static Specification<Habit> isMonthlyDue() {
         return (root, query, cb) -> {
-            var renewalType = root.get("streak").get("renewalType");
+            var renewalType = root.get("definition").get("renewalType");
             var lastProgress = root.get("streak").get("lastProgress").as(Timestamp.class);
             var today = LocalDate.now(ZONE_ID);
             var startOfMonthTimestamp = Timestamp.from(today.withDayOfMonth(1).atStartOfDay(ZONE_ID).toInstant());
