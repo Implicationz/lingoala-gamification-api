@@ -16,10 +16,9 @@ public class HabitSpecifications {
 
     public static Specification<Habit> incompleteProgress() {
         return (root, query, cb) -> {
-            var goal = root.join("goal");
             return cb.lessThan(
-                    goal.get("progress"),
-                    goal.get("definition").get("target")
+                    root.get("progress"),
+                    root.get("definition").get("target")
             );
         };
     }
