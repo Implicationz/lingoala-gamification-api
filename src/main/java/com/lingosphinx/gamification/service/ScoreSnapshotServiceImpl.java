@@ -12,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.DayOfWeek;
 import java.time.ZonedDateTime;
-import java.time.temporal.IsoFields;
 import java.util.List;
 
 @Slf4j

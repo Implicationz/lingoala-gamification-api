@@ -1,8 +1,7 @@
 package com.lingosphinx.gamification.controller;
 
-import com.lingosphinx.gamification.dto.HabitDto;
-import com.lingosphinx.gamification.service.HabitReminderService;
 import com.lingosphinx.gamification.service.HabitService;
+import com.lingosphinx.gamification.service.SchedulingService;
 import com.lingosphinx.gamification.service.ScoreSnapshotService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -20,10 +19,10 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Schedule API")
 public class ScheduleController {
 
-    private final HabitService habitService;
-    private final HabitReminderService habitReminderService;
-    private final ScoreSnapshotService scoreSnapshotService;
+    private final SchedulingService schedulingService;
 
+    private final HabitService habitService;
+    private final ScoreSnapshotService scoreSnapshotService;
 
     @Value("${cron.secret}")
     private String cronSecret;
@@ -42,7 +41,7 @@ public class ScheduleController {
         if (!cronSecret.equals(secret)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
-        habitReminderService.remindAll();
+        schedulingService.remindAll();
         return ResponseEntity.ok().build();
     }
 

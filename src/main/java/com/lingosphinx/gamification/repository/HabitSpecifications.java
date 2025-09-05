@@ -2,6 +2,7 @@ package com.lingosphinx.gamification.repository;
 
 import com.lingosphinx.gamification.domain.Contestant;
 import com.lingosphinx.gamification.domain.Habit;
+import com.lingosphinx.gamification.domain.HabitReminder;
 import com.lingosphinx.gamification.domain.RenewalType;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -69,6 +70,18 @@ public class HabitSpecifications {
                         .or(isWeeklyDue())
                         .or(isMonthlyDue())
         );
+    }
+
+    public static Specification<Habit> noReminderExists() {
+
+        return (root, query, cb) -> {
+            var subquery = query.subquery(Long.class);
+            var reminderRoot = subquery.from(HabitReminder.class);
+            subquery
+                    .select(cb.literal(1L))
+                    .where(cb.equal(root, reminderRoot.get("habit")));
+            return cb.not(cb.exists(subquery));
+        };
     }
 
     public static Specification<Habit> byZoneNameAndNameAndContestant(String zone, String name, Contestant contestant) {

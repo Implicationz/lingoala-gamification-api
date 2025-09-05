@@ -6,7 +6,7 @@ import org.hibernate.annotations.BatchSize;
 
 import java.time.Instant;
 
-@BatchSize(size=500)
+@BatchSize(size=50)
 @Entity
 @Getter
 @Setter

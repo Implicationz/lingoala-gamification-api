@@ -1,7 +1,6 @@
 package com.lingosphinx.gamification.dto;
 
 import com.lingosphinx.gamification.domain.ProgressValue;
-import com.lingosphinx.gamification.domain.ScoreSnapshot;
 import lombok.*;
 
 import java.time.Instant;

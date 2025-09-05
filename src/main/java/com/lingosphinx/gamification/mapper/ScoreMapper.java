@@ -1,11 +1,11 @@
 package com.lingosphinx.gamification.mapper;
 
 import com.lingosphinx.gamification.domain.Contestant;
-import com.lingosphinx.gamification.domain.ScoreSnapshot;
 import com.lingosphinx.gamification.domain.Score;
+import com.lingosphinx.gamification.domain.ScoreSnapshot;
 import com.lingosphinx.gamification.dto.ContestantDto;
-import com.lingosphinx.gamification.dto.ScoreSnapshotDto;
 import com.lingosphinx.gamification.dto.ScoreDto;
+import com.lingosphinx.gamification.dto.ScoreSnapshotDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;

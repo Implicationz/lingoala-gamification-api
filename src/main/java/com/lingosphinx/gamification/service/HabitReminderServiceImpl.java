@@ -12,6 +12,8 @@ import com.lingosphinx.gamification.repository.HabitSpecifications;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
@@ -22,7 +24,6 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class HabitReminderServiceImpl implements HabitReminderService {
 
     private final HabitReminderRepository habitReminderRepository;
@@ -30,6 +31,7 @@ public class HabitReminderServiceImpl implements HabitReminderService {
     private final HabitReminderMapper habitReminderMapper;
     private final ApplicationEventPublisher publisher;
 
+    @Transactional
     @Override
     public HabitReminderDto create(HabitReminderDto habitReminderDto) {
         var habitReminder = habitReminderMapper.toEntity(habitReminderDto);
@@ -57,6 +59,7 @@ public class HabitReminderServiceImpl implements HabitReminderService {
         return result;
     }
 
+    @Transactional
     @Override
     public HabitReminderDto update(Long id, HabitReminderDto habitReminderDto) {
         var existingHabitReminder = habitReminderRepository.findById(id)
@@ -67,36 +70,44 @@ public class HabitReminderServiceImpl implements HabitReminderService {
         return habitReminderMapper.toDto(existingHabitReminder);
     }
 
+    @Transactional
     @Override
     public void delete(Long id) {
         habitReminderRepository.deleteById(id);
         log.info("HabitReminder deleted successfully: id={}", id);
     }
 
-    public HabitReminder remind(Habit habit) {
+    @Transactional
+    public HabitReminder toReminder(Habit habit) {
         var reminder = HabitReminder.builder()
                 .habit(habit)
                 .title("Streak Erinnerung")
                 .body("Vergiss nicht, deinen Habit heute zu erledigen!")
                 .build();
-        habitReminderRepository.save(reminder);
         log.info("HabitReminder saved: habitId={}", habit.getId());
         return reminder;
     }
 
+    @Transactional
     @Override
-    public void remindAll() {
-        var spec = HabitSpecifications.due();
-        var habits = habitRepository.findAll(spec);
-        var habitReminders = habits.stream().map(this::remind).toList();
-
-        TransactionSynchronizationManager.registerSynchronization(
-                new TransactionSynchronizationAdapter() {
-                    @Override
-                    public void afterCommit() {
-                        publisher.publishEvent(new RemindersCreatedEvent(habitReminders));
-                    }
-                }
-        );
+    public Page<Habit> remind(Pageable pageable) {
+        var spec = HabitSpecifications.due()
+                .and(HabitSpecifications.noReminderExists());
+        var page = habitRepository.findAll(spec, pageable);
+        var reminders = page.stream().map(this::toReminder).toList();
+        habitReminderRepository.saveAll(reminders);
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
+            @Override
+            public void afterCommit() {
+                publisher.publishEvent(new RemindersCreatedEvent());
+            }
+        });
+        return page;
     }
+
+    @Transactional
+    @Override
+    public void deleteAll() {
+        habitReminderRepository.deleteAll();
+    };
 }

@@ -12,15 +12,15 @@ import java.util.Optional;
 
 public interface HabitRepository extends JpaRepository<Habit, Long>, JpaSpecificationExecutor<Habit> {
 
-    @EntityGraph(attributePaths = {"definition", "streak"})
+    @EntityGraph(attributePaths = {"definition", "streak", "contestant"})
     Optional<Habit> findById(Long id);
 
-    @EntityGraph(attributePaths = {"definition", "streak"})
+    @EntityGraph(attributePaths = {"definition", "streak", "contestant"})
     List<Habit> findAll();
 
-    @EntityGraph(attributePaths = {"definition", "streak"})
+    @EntityGraph(attributePaths = {"definition", "streak", "contestant"})
     List<Habit> findAll(Specification spec);
     
-    @EntityGraph(attributePaths = {"definition", "streak"})
+    @EntityGraph(attributePaths = {"definition", "streak", "contestant"})
     Optional<Habit> findOne(Specification spec);
 }
