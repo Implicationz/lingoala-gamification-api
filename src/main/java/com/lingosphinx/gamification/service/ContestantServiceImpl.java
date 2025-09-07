@@ -1,6 +1,7 @@
 package com.lingosphinx.gamification.service;
 
 import com.lingosphinx.gamification.domain.Contestant;
+import com.lingosphinx.gamification.domain.IanaTimeZone;
 import com.lingosphinx.gamification.dto.ContestantDto;
 import com.lingosphinx.gamification.exception.ResourceNotFoundException;
 import com.lingosphinx.gamification.mapper.ContestantMapper;
@@ -25,9 +26,11 @@ public class ContestantServiceImpl implements ContestantService {
     @Override
     public ContestantDto registerCurrent() {
         var userId = this.userService.getCurrentUserId();
+        var timeZone = IanaTimeZone.systemDefault();
         var registered = this.contestantRepository.findByUserId(userId).orElseGet(() -> {
             var contestant = new Contestant();
             contestant.setUserId(userId);
+            contestant.setTimeZone(timeZone);
             var savedContestant = contestantRepository.save(contestant);
             log.info("Contestant registered successfully: id={}", savedContestant.getId());
             return savedContestant;

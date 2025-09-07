@@ -13,15 +13,9 @@ public class HabitReminderScheduler {
 
     private final SchedulingService schedulingService;
 
-    @Scheduled(cron = "0 0 9 * * *")
+    @Scheduled(cron = "0 0 */1 * * *")
     public void morningReminder() {
-        log.info("Sending Streak reminder (morning)");
-        schedulingService.remindAll();
-    }
-
-    @Scheduled(cron = "0 0 18 * * *")
-    public void eveningReminder() {
-        log.info("Sending Streak reminder (evening)");
+        log.info("Sending Streak reminders");
         schedulingService.remindAll();
     }
 }

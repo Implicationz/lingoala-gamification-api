@@ -1,5 +1,6 @@
 package com.lingosphinx.gamification.service;
 
+import com.lingosphinx.gamification.domain.IanaTimeZone;
 import com.lingosphinx.gamification.dto.ScoreSnapshotDto;
 
 import java.util.List;
@@ -12,5 +13,5 @@ public interface ScoreSnapshotService {
     ScoreSnapshotDto update(Long id, ScoreSnapshotDto scoreSnapshot);
     void delete(Long id);
 
-    void regenerateAll();
+    void regenerateAll(IanaTimeZone ianaTimeZone);
 }

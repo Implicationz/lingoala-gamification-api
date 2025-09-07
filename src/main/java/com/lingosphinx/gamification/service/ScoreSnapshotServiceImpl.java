@@ -1,5 +1,6 @@
 package com.lingosphinx.gamification.service;
 
+import com.lingosphinx.gamification.domain.IanaTimeZone;
 import com.lingosphinx.gamification.domain.RenewalType;
 import com.lingosphinx.gamification.dto.ScoreSnapshotDto;
 import com.lingosphinx.gamification.exception.ResourceNotFoundException;
@@ -67,12 +68,9 @@ public class ScoreSnapshotServiceImpl implements ScoreSnapshotService {
         log.info("ScoreSnapshot deleted successfully: id={}", id);
     }
 
-
-    // src/main/java/com/lingosphinx/gamification/service/ScoreSnapshotServiceImpl.java
-
     @Override
-    public void regenerateAll() {
-        var now = ZonedDateTime.now();
+    public void regenerateAll(IanaTimeZone ianaTimeZone) {
+        var now = ZonedDateTime.now(ianaTimeZone.zoneId());
         var day = now.getDayOfMonth();
         var month = now.getMonthValue();
 
@@ -106,7 +104,8 @@ public class ScoreSnapshotServiceImpl implements ScoreSnapshotService {
         );
 
         var results = intervals.stream()
-                .map(i -> i.shouldRun() ? scoreSnapshotRepository.updateSnapshotsInInterval(i.begin().toInstant(), i.end().toInstant(), i.type()) : 0)
+                .map(i -> i.shouldRun() ? scoreSnapshotRepository.updateSnapshotsInInterval(ianaTimeZone,
+                        i.begin().toInstant(), i.end().toInstant(), i.type()) : 0)
                 .toList();
 
         log.info("Snapshots regenerated: daily={}, weekly={}, monthly={}, yearly={}", results.get(0), results.get(1), results.get(2), results.get(3));

@@ -1,5 +1,6 @@
 package com.lingosphinx.gamification.service;
 
+import com.lingosphinx.gamification.domain.IanaTimeZone;
 import com.lingosphinx.gamification.dto.HabitActivationDto;
 import com.lingosphinx.gamification.dto.HabitDto;
 import jakarta.validation.Valid;
@@ -17,7 +18,7 @@ public interface HabitService {
     HabitDto update(Long id, HabitDto habit);
     void delete(Long id);
 
-    void resetAll();
+    void resetAll(IanaTimeZone ianaTimeZone);
 
     HabitDto activate(@Valid HabitActivationDto habitDefinitionActivation);
 }

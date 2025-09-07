@@ -2,7 +2,7 @@ package com.lingosphinx.gamification.repository;
 
 import com.lingosphinx.gamification.domain.Contestant;
 import com.lingosphinx.gamification.domain.Habit;
-import com.lingosphinx.gamification.domain.HabitReminder;
+import com.lingosphinx.gamification.domain.IanaTimeZone;
 import com.lingosphinx.gamification.domain.RenewalType;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -13,7 +13,7 @@ import java.time.ZoneId;
 
 public class HabitSpecifications {
 
-    private static final ZoneId ZONE_ID = ZoneId.systemDefault();
+    private static final ZoneId zoneId = ZoneId.systemDefault();
 
     public static Specification<Habit> incompleteProgress() {
         return (root, query, cb) -> {
@@ -24,12 +24,12 @@ public class HabitSpecifications {
         };
     }
 
-    public static Specification<Habit> isDailyDue() {
+    public static Specification<Habit> isDailyDue(ZoneId zoneId) {
         return (root, query, cb) -> {
             var renewalType = root.get("definition").get("renewalType");
             var lastProgress = root.get("streak").get("lastProgress").as(Timestamp.class);
-            var today = LocalDate.now(ZONE_ID);
-            var startOfDayTimestamp = Timestamp.from(today.atStartOfDay(ZONE_ID).toInstant());
+            var today = LocalDate.now(zoneId);
+            var startOfDayTimestamp = Timestamp.from(today.atStartOfDay(zoneId).toInstant());
             return cb.and(
                     cb.equal(renewalType, RenewalType.DAILY),
                     cb.lessThan(lastProgress, startOfDayTimestamp)
@@ -37,12 +37,12 @@ public class HabitSpecifications {
         };
     }
 
-    public static Specification<Habit> isWeeklyDue() {
+    public static Specification<Habit> isWeeklyDue(ZoneId zoneId) {
         return (root, query, cb) -> {
             var renewalType = root.get("definition").get("renewalType");
             var lastProgress = root.get("streak").get("lastProgress").as(Timestamp.class);
-            var today = LocalDate.now(ZONE_ID);
-            var startOfWeekTimestamp = Timestamp.from(today.with(DayOfWeek.MONDAY).atStartOfDay(ZONE_ID).toInstant());
+            var today = LocalDate.now(zoneId);
+            var startOfWeekTimestamp = Timestamp.from(today.with(DayOfWeek.MONDAY).atStartOfDay(zoneId).toInstant());
             return cb.and(
                     cb.equal(renewalType, RenewalType.WEEKLY),
                     cb.lessThan(lastProgress, startOfWeekTimestamp)
@@ -50,12 +50,12 @@ public class HabitSpecifications {
         };
     }
 
-    public static Specification<Habit> isMonthlyDue() {
+    public static Specification<Habit> isMonthlyDue(ZoneId zoneId) {
         return (root, query, cb) -> {
             var renewalType = root.get("definition").get("renewalType");
             var lastProgress = root.get("streak").get("lastProgress").as(Timestamp.class);
-            var today = LocalDate.now(ZONE_ID);
-            var startOfMonthTimestamp = Timestamp.from(today.withDayOfMonth(1).atStartOfDay(ZONE_ID).toInstant());
+            var today = LocalDate.now(zoneId);
+            var startOfMonthTimestamp = Timestamp.from(today.withDayOfMonth(1).atStartOfDay(zoneId).toInstant());
             return cb.and(
                     cb.equal(renewalType, RenewalType.MONTHLY),
                     cb.lessThan(lastProgress, startOfMonthTimestamp)
@@ -64,24 +64,19 @@ public class HabitSpecifications {
         };
     }
 
-    public static Specification<Habit> due() {
-        return incompleteProgress().and(
-                isDailyDue()
-                        .or(isWeeklyDue())
-                        .or(isMonthlyDue())
-        );
+    public static Specification<Habit> isInTimeZone(IanaTimeZone ianaTimeZone) {
+        return (root, query, cb) -> {
+            return cb.equal(root.get("contestant").get("timeZone"), ianaTimeZone);
+        };
     }
 
-    public static Specification<Habit> noReminderExists() {
-
-        return (root, query, cb) -> {
-            var subquery = query.subquery(Long.class);
-            var reminderRoot = subquery.from(HabitReminder.class);
-            subquery
-                    .select(cb.literal(1L))
-                    .where(cb.equal(root, reminderRoot.get("habit")));
-            return cb.not(cb.exists(subquery));
-        };
+    public static Specification<Habit> due(IanaTimeZone ianaTimeZone) {
+        var zoneId = ianaTimeZone.zoneId();
+        return incompleteProgress().and(isInTimeZone(ianaTimeZone)).and(
+                isDailyDue(zoneId)
+                .or(isWeeklyDue(zoneId))
+                .or(isMonthlyDue(zoneId))
+        );
     }
 
     public static Specification<Habit> byZoneNameAndNameAndContestant(String zone, String name, Contestant contestant) {

@@ -1,5 +1,6 @@
 package com.lingosphinx.gamification.controller;
 
+import com.lingosphinx.gamification.domain.IanaTimeZone;
 import com.lingosphinx.gamification.service.HabitService;
 import com.lingosphinx.gamification.service.SchedulingService;
 import com.lingosphinx.gamification.service.ScoreSnapshotService;
@@ -8,10 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/schedule")
@@ -27,12 +25,15 @@ public class ScheduleController {
     @Value("${cron.secret}")
     private String cronSecret;
 
-    @PostMapping("/habit/reset")
-    public ResponseEntity<Void> resetAll(@RequestHeader("X-CRON-SECRET") String secret) {
+    @PostMapping("/habit/reset/{region}/{city}")
+    public ResponseEntity<Void> resetAll(
+            @RequestHeader("X-CRON-SECRET") String secret,
+            @PathVariable String region,
+            @PathVariable String city) {
         if (!cronSecret.equals(secret)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
-        habitService.resetAll();
+        habitService.resetAll(IanaTimeZone.of(region, city));
         return ResponseEntity.ok().build();
     }
 
@@ -45,12 +46,14 @@ public class ScheduleController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/snapshot/regenerate")
-    public ResponseEntity<Void> regenerateAll(@RequestHeader("X-CRON-SECRET") String secret) {
+    @PostMapping("/snapshot/regenerate/{region}/{city}")
+    public ResponseEntity<Void> regenerateAll(@RequestHeader("X-CRON-SECRET") String secret,
+                                              @PathVariable String region,
+                                              @PathVariable String city) {
         if (!cronSecret.equals(secret)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
-        scoreSnapshotService.regenerateAll();
+        scoreSnapshotService.regenerateAll(IanaTimeZone.of(region, city));
         return ResponseEntity.ok().build();
     }
 }

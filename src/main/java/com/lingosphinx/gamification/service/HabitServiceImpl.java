@@ -1,6 +1,7 @@
 package com.lingosphinx.gamification.service;
 
 import com.lingosphinx.gamification.domain.Habit;
+import com.lingosphinx.gamification.domain.IanaTimeZone;
 import com.lingosphinx.gamification.dto.HabitActivationDto;
 import com.lingosphinx.gamification.dto.HabitDto;
 import com.lingosphinx.gamification.event.HabitCompletedEvent;
@@ -124,8 +125,8 @@ public class HabitServiceImpl implements HabitService {
     }
 
     @Override
-    public void resetAll() {
-        var spec = HabitSpecifications.due();
+    public void resetAll(IanaTimeZone ianaTimeZone) {
+        var spec = HabitSpecifications.due(ianaTimeZone);
         var habits = habitRepository.findAll(spec);
         log.info("Habit reset started for {} habits", habits.size());
         habits.forEach(this::reset);
@@ -140,8 +141,7 @@ public class HabitServiceImpl implements HabitService {
         var activated = found.orElseGet(() -> {
             var definition = habitDefinitionRepository.findByZone_NameAndName(habitActivation.getZone(), habitActivation.getName())
                     .orElseThrow(() -> new IllegalArgumentException("HabitDefinition is invalid."));
-            var habit = Habit.fromDefinition(definition);
-            habit.setContestant(contestant);
+            var habit = Habit.fromDefinition(definition, contestant);
             var savedGoal = habitRepository.save(habit);
             log.info("Goal activated successfully: id={}", savedGoal.getId());
             return savedGoal;

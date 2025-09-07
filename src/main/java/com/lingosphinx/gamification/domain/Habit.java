@@ -2,6 +2,11 @@ package com.lingosphinx.gamification.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.BatchSize;
+
+import java.time.LocalTime;
+import java.util.List;
+import java.util.stream.Stream;
 
 @Builder
 @RequiredArgsConstructor
@@ -21,6 +26,10 @@ public class Habit {
     @ManyToOne
     private Contestant contestant;
 
+    @BatchSize(size = 50)
+    @OneToMany(mappedBy = "habit", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<HabitReminderTrigger> triggers;
+
     @Builder.Default
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(unique = true)
@@ -28,12 +37,30 @@ public class Habit {
 
     private ProgressValue progress = ProgressValue.ZERO;
 
-    public static Habit fromDefinition(HabitDefinition definition) {
-        return Habit.builder()
+    public static Habit fromDefinition(HabitDefinition definition, Contestant contestant) {
+        var habit = Habit.builder()
                 .definition(definition)
+                .contestant(contestant)
                 .streak(new Streak())
                 .progress(ProgressValue.valueOf(1))
                 .build();
+
+        habit.setTriggers(Stream.of(
+            HabitReminderTrigger.builder()
+                    .habit(habit)
+                    .time(LocalTime.MIDNIGHT.minusHours(2))
+                    .build(),
+            HabitReminderTrigger.builder()
+                    .habit(habit)
+                    .time(LocalTime.MIDNIGHT.minusHours(7))
+                    .build()
+        ).toList());
+        habit.resetReminderTriggers();
+        return habit;
+    }
+
+    private void resetReminderTriggers() {
+        this.triggers.forEach(HabitReminderTrigger::reset);
     }
 
     public void reset() {

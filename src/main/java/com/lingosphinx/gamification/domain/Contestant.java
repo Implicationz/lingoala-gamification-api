@@ -9,6 +9,12 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
+@Table(
+        indexes = {
+                @Index(name = "idx_contestant_user_id", columnList = "userId"),
+                @Index(name = "idx_contestant_time_zone", columnList = "timeZone")
+        }
+)
 @Builder
 @RequiredArgsConstructor
 @AllArgsConstructor
@@ -22,6 +28,8 @@ public class Contestant {
 
     @Column(nullable = false, unique = true)
     private UUID userId;
+
+    private IanaTimeZone timeZone;
 
     @Builder.Default
     @BatchSize(size = 10)
