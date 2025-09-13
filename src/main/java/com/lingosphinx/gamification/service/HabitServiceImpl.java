@@ -106,7 +106,7 @@ public class HabitServiceImpl implements HabitService {
         var wasComplete = existingHabit.isComplete();
         existingHabit.setProgress(habitDto.getProgress());
 
-        if(wasComplete && existingHabit.isComplete()) {
+        if(!wasComplete && existingHabit.isComplete()) {
             publisher.publishEvent(new HabitCompletedEvent(existingHabit));
         }
         log.info("Habit updated successfully: id={}", existingHabit.getId());
