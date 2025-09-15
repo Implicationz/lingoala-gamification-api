@@ -25,6 +25,10 @@ public class Streak {
 
     @Builder.Default
     @Column(nullable = false)
+    private Instant lastReset = Instant.EPOCH;
+
+    @Builder.Default
+    @Column(nullable = false)
     private long duration = 0;
 
     @Builder.Default
@@ -43,5 +47,6 @@ public class Streak {
 
     public void reset() {
         this.duration = 0;
+        this.lastProgress = Instant.now();
     }
 }

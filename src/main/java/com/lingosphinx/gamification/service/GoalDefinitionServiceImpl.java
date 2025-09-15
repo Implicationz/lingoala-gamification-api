@@ -121,8 +121,8 @@ public class GoalDefinitionServiceImpl implements GoalDefinitionService {
 
             var goalDefinition = goalDefinitionMapper.toEntityFromRegistration(goalDefinitionRegistration);
             goalDefinition.setParent(registeredParent);
-            var type = goalTypeRepository.findByName(goalDefinitionRegistration.getType()).orElseThrow();
-            var zone = goalZoneRepository.findByName(goalDefinitionRegistration.getZone()).orElseThrow();
+            var type = goalTypeRepository.findByName(goalDefinitionRegistration.getType()).orElseThrow(() -> new ResourceNotFoundException("GoalType not found"));
+            var zone = goalZoneRepository.findByName(goalDefinitionRegistration.getZone()).orElseThrow(() -> new ResourceNotFoundException("GoalZone not found"));
             goalDefinition.setType(type);
             goalDefinition.setZone(zone);
             var savedGoalDefinition = goalDefinitionRepository.save(goalDefinition);

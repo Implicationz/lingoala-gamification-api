@@ -104,11 +104,12 @@ public class HabitServiceImpl implements HabitService {
                 .orElseThrow(() -> new ResourceNotFoundException("Habit not found"));
 
         var wasComplete = existingHabit.isComplete();
-        existingHabit.setProgress(habitDto.getProgress());
+        existingHabit.apply(habitDto.getProgress());
 
         if(!wasComplete && existingHabit.isComplete()) {
             publisher.publishEvent(new HabitCompletedEvent(existingHabit));
         }
+
         log.info("Habit updated successfully: id={}", existingHabit.getId());
         return habitMapper.toDto(existingHabit);
     }

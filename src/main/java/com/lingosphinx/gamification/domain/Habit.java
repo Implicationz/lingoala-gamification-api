@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.BatchSize;
 
+import java.time.Instant;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Stream;
@@ -37,6 +38,10 @@ public class Habit {
 
     private ProgressValue progress = ProgressValue.ZERO;
 
+    @Builder.Default
+    @Column(nullable = false)
+    private Instant lastProgress = Instant.EPOCH;
+
     public static Habit fromDefinition(HabitDefinition definition, Contestant contestant) {
         var habit = Habit.builder()
                 .definition(definition)
@@ -64,11 +69,20 @@ public class Habit {
     }
 
     public void reset() {
+        var isComplete = this.isComplete();
         this.progress = ProgressValue.ZERO;
+        if(isComplete) {
+            return;
+        }
         this.streak.reset();
     }
 
     public boolean isComplete() {
         return this.progress.getValue() >= this.definition.getTarget().getValue();
+    }
+
+    public void apply(ProgressValue progress) {
+        this.setProgress(progress);
+        this.lastProgress = Instant.now();
     }
 }

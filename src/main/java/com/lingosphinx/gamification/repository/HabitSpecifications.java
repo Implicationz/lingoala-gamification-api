@@ -27,40 +27,29 @@ public class HabitSpecifications {
     public static Specification<Habit> isDailyDue(ZoneId zoneId) {
         return (root, query, cb) -> {
             var renewalType = root.get("definition").get("renewalType");
-            var lastProgress = root.get("streak").get("lastProgress").as(Timestamp.class);
-            var today = LocalDate.now(zoneId);
-            var startOfDayTimestamp = Timestamp.from(today.atStartOfDay(zoneId).toInstant());
-            return cb.and(
-                    cb.equal(renewalType, RenewalType.DAILY),
-                    cb.lessThan(lastProgress, startOfDayTimestamp)
-            );
+            return cb.equal(renewalType, RenewalType.DAILY);
         };
     }
 
     public static Specification<Habit> isWeeklyDue(ZoneId zoneId) {
         return (root, query, cb) -> {
             var renewalType = root.get("definition").get("renewalType");
-            var lastProgress = root.get("streak").get("lastProgress").as(Timestamp.class);
             var today = LocalDate.now(zoneId);
-            var startOfWeekTimestamp = Timestamp.from(today.with(DayOfWeek.MONDAY).atStartOfDay(zoneId).toInstant());
-            return cb.and(
-                    cb.equal(renewalType, RenewalType.WEEKLY),
-                    cb.lessThan(lastProgress, startOfWeekTimestamp)
-            );
+            if (today.getDayOfWeek() != DayOfWeek.MONDAY) {
+                return cb.disjunction();
+            }
+            return cb.equal(renewalType, RenewalType.WEEKLY);
         };
     }
 
     public static Specification<Habit> isMonthlyDue(ZoneId zoneId) {
         return (root, query, cb) -> {
             var renewalType = root.get("definition").get("renewalType");
-            var lastProgress = root.get("streak").get("lastProgress").as(Timestamp.class);
             var today = LocalDate.now(zoneId);
-            var startOfMonthTimestamp = Timestamp.from(today.withDayOfMonth(1).atStartOfDay(zoneId).toInstant());
-            return cb.and(
-                    cb.equal(renewalType, RenewalType.MONTHLY),
-                    cb.lessThan(lastProgress, startOfMonthTimestamp)
-
-            );
+            if (today.getDayOfMonth() != 1) {
+                return cb.disjunction();
+            }
+            return cb.equal(renewalType, RenewalType.MONTHLY);
         };
     }
 
@@ -72,7 +61,7 @@ public class HabitSpecifications {
 
     public static Specification<Habit> due(IanaTimeZone ianaTimeZone) {
         var zoneId = ianaTimeZone.zoneId();
-        return incompleteProgress().and(isInTimeZone(ianaTimeZone)).and(
+        return isInTimeZone(ianaTimeZone).and(
                 isDailyDue(zoneId)
                 .or(isWeeklyDue(zoneId))
                 .or(isMonthlyDue(zoneId))
