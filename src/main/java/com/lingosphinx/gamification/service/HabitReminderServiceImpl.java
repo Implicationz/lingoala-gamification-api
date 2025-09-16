@@ -12,7 +12,6 @@ import com.lingosphinx.gamification.repository.HabitReminderTriggerSpecification
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +19,7 @@ import org.springframework.transaction.support.TransactionSynchronizationAdapter
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -89,24 +89,30 @@ public class HabitReminderServiceImpl implements HabitReminderService {
 
     @Transactional
     @Override
-    public Page<HabitReminderTrigger> remind(Pageable pageable) {
-        var spec = HabitReminderTriggerSpecifications.due()
-                .and(HabitReminderTriggerSpecifications.noReminderExists());
-        var page = habitReminderTriggerRepository.findAll(spec, pageable);
-        var reminders = page.stream().map(t -> {
+    public List<HabitReminder> remind(Pageable pageable) {
+        var spec = HabitReminderTriggerSpecifications.due();
+        var page = habitReminderTriggerRepository.findAllForUpdate(spec, pageable);
+        var incomplete = page.stream().peek(HabitReminderTrigger::reset)
+                .filter(t -> t.getHabit().isComplete())
+                .toList();
+        var reminders = incomplete.stream().map(t -> {
             var reminder = t.reminder();
-            t.reset();
-            log.info("HabitReminder saved: habitId={}", reminder.getHabit().getId());
             return reminder;
         }).toList();
+
         habitReminderRepository.saveAll(reminders);
+        log.info("HabitReminders saved: habitId={}", reminders.stream()
+                .map(HabitReminder::getId)
+                .map(Object::toString)
+                .collect(Collectors.joining(" ")));
+
         TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
             @Override
             public void afterCommit() {
                 publisher.publishEvent(new RemindersCreatedEvent());
             }
         });
-        return page;
+        return reminders;
     }
 
     @Transactional

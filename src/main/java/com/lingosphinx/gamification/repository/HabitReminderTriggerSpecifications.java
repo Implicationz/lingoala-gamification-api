@@ -30,7 +30,7 @@ public class HabitReminderTriggerSpecifications {
     }
 
     public static Specification<HabitReminderTrigger> due() {
-        return incompleteProgress().and(isNextDueBeforeNow());
+        return isNextDueBeforeNow();
     }
 
     public static Specification<HabitReminderTrigger> noReminderExists() {

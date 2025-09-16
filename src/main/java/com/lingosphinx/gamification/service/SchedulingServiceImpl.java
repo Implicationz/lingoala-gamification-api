@@ -16,11 +16,13 @@ public class SchedulingServiceImpl implements SchedulingService {
     public void remindAll() {
         log.info("Started habit reminder generation");
         habitReminderService.deleteAll();
-        var page = habitReminderService.remind(PageRequest.of(0, 500));
-        var count = page.stream().count();
-        while(page.hasNext()) {
-            page = habitReminderService.remind(page.nextPageable());
-            count += page.stream().count();
+        var count = 0;
+        while(true) {
+            var reminders = habitReminderService.remind(PageRequest.of(0, 500));
+            if (reminders.isEmpty()) {
+                break;
+            }
+            count += reminders.size();
         }
         log.info("Finished habit reminder generation: {} reminders", count);
     }
