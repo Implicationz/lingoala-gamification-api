@@ -91,7 +91,7 @@ public class HabitReminderServiceImpl implements HabitReminderService {
     @Override
     public List<HabitReminder> remind(Pageable pageable) {
         var spec = HabitReminderTriggerSpecifications.due();
-        var page = habitReminderTriggerRepository.findAllForUpdate(spec, pageable);
+        var page = habitReminderTriggerRepository.findAll(spec, pageable);
         var incomplete = page.stream().peek(HabitReminderTrigger::reset)
                 .filter(t -> t.getHabit().isComplete())
                 .toList();

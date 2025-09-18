@@ -23,5 +23,5 @@ public interface HabitReminderTriggerRepository extends JpaRepository<HabitRemin
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @EntityGraph(attributePaths = {"habit", "habit.definition", "habit.streak", "habit.contestant"})
-    Page<HabitReminderTrigger> findAllForUpdate(Specification<HabitReminderTrigger> spec, Pageable pageable);
+    Page<HabitReminderTrigger> findAll(Specification<HabitReminderTrigger> spec, Pageable pageable);
 }
