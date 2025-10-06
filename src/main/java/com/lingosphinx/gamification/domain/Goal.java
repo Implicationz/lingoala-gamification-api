@@ -139,7 +139,11 @@ public class Goal {
     }
 
     public void apply(GoalProgress goalProgress) {
-        this.progress = goalProgress.getValue();
+        var value = goalProgress.getValue();
+        if(this.progress.isGreaterOrEqual(value)) {
+            return;
+        }
+        this.progress = value;
         this.lastProgress = Instant.now();
     }
 }

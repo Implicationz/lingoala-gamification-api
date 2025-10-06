@@ -24,5 +24,10 @@ public class ProgressValue {
     public static ProgressValue valueOf(long value) {
         return new ProgressValue(value);
     }
+
+    public boolean isGreaterOrEqual(ProgressValue other) {
+        return this.value >= other.value;
+    }
+
 }
 
