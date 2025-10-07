@@ -93,7 +93,7 @@ public class HabitReminderServiceImpl implements HabitReminderService {
         var spec = HabitReminderTriggerSpecifications.due();
         var page = habitReminderTriggerRepository.findAll(spec, pageable);
         var incomplete = page.stream().peek(HabitReminderTrigger::reset)
-                .filter(t -> t.getHabit().isComplete())
+                .filter(t -> !t.getHabit().isComplete())
                 .toList();
         var reminders = incomplete.stream().map(t -> {
             var reminder = t.reminder();
