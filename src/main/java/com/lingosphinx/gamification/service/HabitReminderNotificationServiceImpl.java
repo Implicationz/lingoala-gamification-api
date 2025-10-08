@@ -22,9 +22,12 @@ public class HabitReminderNotificationServiceImpl implements HabitReminderNotifi
 
     protected NotificationDto toNotification(HabitReminder habitReminder) {
         var habit = habitReminder.getHabit();
+        var name = habit.getDefinition().getName();
+        var zone = habit.getDefinition().getZone();
+        var message = String.format("Reminder for habit: %s (%s)", name, zone.getName());
         return NotificationDto.builder()
                 .title("Habit Reminder")
-                .message("Reminder for habit: " + habit.getDefinition().getName())
+                .message(message)
                 .receiver(habit.getContestant().getUserId())
                 .build();
     }
