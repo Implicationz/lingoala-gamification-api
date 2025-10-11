@@ -19,7 +19,7 @@ public interface HabitReminderRepository extends JpaRepository<HabitReminder, Lo
         SELECT hr.* FROM habit_reminder hr
         JOIN habit h ON hr.habit_id = h.id
         JOIN habit_definition d ON h.definition_id = d.id
-        JOIN habit_streak s ON h.streak_id = s.id
+        JOIN streak s ON h.streak_id = s.id
         JOIN contestant c ON h.contestant_id = c.id
         WHERE hr.sent = false AND hr.trial_count < :maxTrialCount
         FOR UPDATE SKIP LOCKED
