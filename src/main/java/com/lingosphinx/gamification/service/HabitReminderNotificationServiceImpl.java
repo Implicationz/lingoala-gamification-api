@@ -10,11 +10,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.List;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class HabitReminderNotificationServiceImpl implements HabitReminderNotificationService {
 
     private final HabitReminderRepository habitReminderRepository;
@@ -32,23 +32,34 @@ public class HabitReminderNotificationServiceImpl implements HabitReminderNotifi
                 .build();
     }
 
-    @Transactional
-    @Override
-    public void sendPendingReminders() {
-        var maxTrialCount = 3;
-        var pendingReminders = habitReminderRepository.findBySentFalseAndTrialCountLessThan(maxTrialCount);
-        for (var reminder : pendingReminders) {
-            try {
-                var notification = toNotification(reminder);
-                notificationClient.create(notification);
-                reminder.setSent(true);
-                reminder.setSentAt(Instant.now());
-            } catch (Exception ex) {
-                log.warn("Reminder could not be sent: {}", reminder.getId(), ex);
-            } finally {
-                reminder.setTrialCount(reminder.getTrialCount() + 1);
-                habitReminderRepository.save(reminder);
-            }
+    public void processReminder(HabitReminder reminder) {
+        try {
+            var notification = toNotification(reminder);
+            notificationClient.create(notification);
+            reminder.setSent(true);
+            reminder.setSentAt(Instant.now());
+        } catch (Exception ex) {
+            log.warn("Reminder could not be sent: {}", reminder.getId(), ex);
+        } finally {
+            reminder.setTrialCount(reminder.getTrialCount() + 1);
+            habitReminderRepository.save(reminder);
         }
     }
+
+    @Transactional
+    public boolean sendPendingReminders(int batchSize) {
+        var maxTrialCount = 3;
+        var batch = habitReminderRepository.findLockUnsentReminders(maxTrialCount, batchSize);
+        for (var reminder : batch) {
+            processReminder(reminder);
+        }
+        return !batch.isEmpty();
+    }
+
+    @Override
+    public void sendAllPendingReminders() {
+        var batchSize = 20;
+        while (sendPendingReminders(batchSize));
+    }
+
 }

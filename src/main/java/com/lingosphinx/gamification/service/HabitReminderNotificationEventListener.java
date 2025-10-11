@@ -15,6 +15,6 @@ public class HabitReminderNotificationEventListener {
     @Async
     @EventListener
     public void onRemindersCreated(RemindersCreatedEvent event) {
-        notificationService.sendPendingReminders();
+        notificationService.sendAllPendingReminders();
     }
 }
