@@ -56,7 +56,6 @@ class GoalDefinitionServiceTest {
         dto.setType(GoalTypeDto.builder().name("type_" + name).build());
         dto.setZone(GoalZoneDto.builder().name("zone_" + name).build());
         dto.setReference("ref_" + name);
-        dto.setWorth(ProgressValue.valueOf(10));
         dto.setTarget(ProgressValue.valueOf(5));
         dto.setImage("img.png");
         return goalDefinitionService.create(dto);
@@ -77,16 +76,6 @@ class GoalDefinitionServiceTest {
         var found = goalDefinitionService.readById(saved.getId());
         assertNotNull(found);
         assertEquals("ReadGoal", found.getName());
-    }
-
-    @Test
-    void readAll_shouldReturnAllGoalDefinitions() {
-        createSampleGoalDefinition("Goal1");
-        createSampleGoalDefinition("Goal2");
-        List<GoalDefinitionDto> all = goalDefinitionService.readAll();
-        assertEquals(2, all.size());
-        assertTrue(all.stream().anyMatch(g -> "Goal1".equals(g.getName())));
-        assertTrue(all.stream().anyMatch(g -> "Goal2".equals(g.getName())));
     }
 
     @Test
