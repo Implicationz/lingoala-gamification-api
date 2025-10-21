@@ -2,6 +2,7 @@ package com.lingosphinx.gamification.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @Table(
@@ -11,16 +12,12 @@ import lombok.*;
                 @Index(name = "idx_habitdefinition_zone_name", columnList = "zone_id,name")
         }
 )
-@Builder
+@SuperBuilder
 @RequiredArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
-public class HabitDefinition {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    private Long id;
+public class HabitDefinition extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "zone_id", nullable = false)

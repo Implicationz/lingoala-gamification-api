@@ -1,19 +1,20 @@
 package com.lingosphinx.gamification.service;
 
-import com.lingosphinx.gamification.domain.Goal;
+import com.lingosphinx.gamification.domain.*;
 import com.lingosphinx.gamification.dto.GoalActivationDto;
 import com.lingosphinx.gamification.dto.GoalDto;
+import com.lingosphinx.gamification.event.GoalActivatedEvent;
 import com.lingosphinx.gamification.exception.ResourceNotFoundException;
 import com.lingosphinx.gamification.mapper.GoalMapper;
-import com.lingosphinx.gamification.repository.GoalDefinitionRepository;
-import com.lingosphinx.gamification.repository.GoalRepository;
-import com.lingosphinx.gamification.repository.GoalSpecifications;
+import com.lingosphinx.gamification.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -23,8 +24,10 @@ public class GoalServiceImpl implements GoalService {
 
     private final GoalRepository goalRepository;
     private final GoalDefinitionRepository goalDefinitionRepository;
+    private final ObjectiveDefinitionRepository objectiveDefinitionRepository;
     private final GoalMapper goalMapper;
     private final ContestantService contestantService;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Override
     public GoalDto create(GoalDto goalDto) {
@@ -44,11 +47,22 @@ public class GoalServiceImpl implements GoalService {
         return goalMapper.toDto(savedGoal);
     }
 
+    protected void readObjectives(Goal goal) {
+        var spec = GoalSpecifications.byContestant(goal.getContestant())
+                .and(GoalSpecifications.byParentGoalDefinition(goal.getDefinition()));
+        var goals = goalRepository.findAll(spec);
+        var objectives = goals.stream()
+                .map(g -> Objective.builder().child(g).build())
+                .toList();
+        goal.setObjectives(objectives);
+    }
+
     @Override
     @Transactional(readOnly = true)
     public GoalDto readById(Long id) {
         var goal = goalRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Goal not found"));
+        readObjectives(goal);
         log.info("Goal read successfully: id={}", id);
         return goalMapper.toDto(goal);
     }
@@ -85,19 +99,41 @@ public class GoalServiceImpl implements GoalService {
         var spec = GoalSpecifications.byTypeNameAndReference(type, reference);
         var goal = goalRepository.findOne(spec)
                 .orElseThrow(() -> new ResourceNotFoundException("Goal not found for type=" + type + " and reference=" + reference));
+        readObjectives(goal);
         log.info("Goal read by type and reference: type={}, reference={}, id={}", type, reference, goal.getId());
         return goalMapper.toDto(goal);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<GoalDto> readAllByZoneNameAndTypeName(String zone, String type) {
+    public List<GoalDto> search(GoalSearch search) {
+        var zone = search.getZone();
+        var type = search.getType();
+        var contestant = contestantService.readCurrentContestant();
         var spec = GoalSpecifications.byZoneNameAndTypeName(zone, type);
-        var goals = goalRepository.findAll(spec).stream()
-                .map(goalMapper::toDto)
-                .toList();
+
+        var references = search.getReferences();
+        if(references != null && !references.isEmpty()) {
+            spec = spec.and(GoalSpecifications.byReferences(search.getReferences()));
+        }
+
+        var goals = goalRepository.findAll(spec);
+        var definitions = goals.stream().map(Goal::getDefinition).toList();
+        var objectives = goalRepository.findChildObjectives(definitions, contestant);
+
+        var objectivesByParent = objectives.stream()
+                .collect(Collectors.groupingBy(match -> match
+                        .objectiveDefinition().getParent().getId()));
+
+        for (var goal : goals) {
+            var goalObjectives = objectivesByParent.getOrDefault(goal.getDefinition().getId(), List.of());
+            goal.setObjectives(goalObjectives.stream()
+                    .map(childGoal -> Objective.builder().child(childGoal.goal()).build())
+                    .toList());
+        }
+
         log.info("Goals read by zone and type: zone={}, type={}, count={}", zone, type, goals.size());
-        return goals;
+        return goals.stream().map(goalMapper::toDto).toList();
     }
 
     @Override
@@ -107,15 +143,36 @@ public class GoalServiceImpl implements GoalService {
         var found = goalRepository.findOne(spec);
         var activated = found.orElseGet(() -> {
             var definition = goalDefinitionRepository.findByZone_NameAndType_NameAndReference(goalActivation.getZone(),
-                            goalActivation.getType(), 
+                            goalActivation.getType(),
                             goalActivation.getReference())
                     .orElseThrow();
-            var goal = Goal.fromDefinition(definition);
-            goal.setContestant(contestant);
-            var savedGoal = goalRepository.save(goal);
-            log.info("Goal activated successfully: id={}", savedGoal.getId());
+
+            var savedGoal = this.activate(definition, contestant);
             return savedGoal;
         });
         return this.goalMapper.toDto(activated);
+    }
+
+    public Goal activate(GoalDefinition definition, Contestant contestant) {
+        var goal = Goal.fromDefinition(definition);
+        goal.setContestant(contestant);
+
+        var savedGoal = goalRepository.save(goal);
+        eventPublisher.publishEvent(new GoalActivatedEvent(definition, contestant));
+        log.info("Goal activated successfully: id={}", savedGoal.getId());
+        return savedGoal;
+    }
+
+    @Override
+    public void activateParents(GoalDefinition definition, Contestant contestant) {
+        var parents = objectiveDefinitionRepository
+                .findAll(ObjectiveDefinitionSpecifications.parentWithoutGoalForContestant(definition, contestant))
+                .stream()
+                .map(ObjectiveDefinition::getParent)
+                .toList();
+
+        for (var parent : parents) {
+            activate(parent, contestant);
+        }
     }
 }

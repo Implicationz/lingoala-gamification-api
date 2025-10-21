@@ -1,7 +1,10 @@
 package com.lingosphinx.gamification.domain;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.ManyToOne;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.BatchSize;
 
 import java.time.Instant;
@@ -10,14 +13,10 @@ import java.time.Instant;
 @Entity
 @Getter
 @Setter
-@Builder
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class HabitReminder {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    private Long id;
+public class HabitReminder extends BaseEntity {
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     private Habit habit;

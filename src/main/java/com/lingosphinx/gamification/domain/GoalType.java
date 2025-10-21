@@ -1,21 +1,20 @@
 package com.lingosphinx.gamification.domain;
 
-import jakarta.persistence.*;
-import lombok.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 @Entity
-@Builder
+@SuperBuilder
 @RequiredArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class GoalType {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    @EqualsAndHashCode.Include
-    private Long id;
+public class GoalType extends BaseEntity {
 
     @Column(unique = true)
     private String name = "";

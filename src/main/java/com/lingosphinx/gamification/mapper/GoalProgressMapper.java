@@ -17,12 +17,7 @@ public interface GoalProgressMapper {
     GoalProgressDto toDto(GoalProgress entity);
     GoalProgress toEntity(GoalProgressDto dto);
 
-    @Mapping(target = "children", ignore = true)
-    @Mapping(target = "parent", ignore = true)
     GoalDto toDto(Goal entity);
-
-    @Mapping(target = "children", ignore = true)
-    @Mapping(target = "parent", ignore = true)
     Goal toEntity(GoalDto dto);
 
     @Mapping(target = "experiences", ignore = true)
@@ -30,12 +25,9 @@ public interface GoalProgressMapper {
     @Mapping(target = "experiences", ignore = true)
     Contestant toEntity(ContestantDto dto);
 
-    @Mapping(target = "children", ignore = true)
-    @Mapping(target = "parent", ignore = true)
+    @Mapping(target = "objectives", ignore = true)
     GoalDefinitionDto toDto(GoalDefinition entity);
-
-    @Mapping(target = "children", ignore = true)
-    @Mapping(target = "parent", ignore = true)
+    @Mapping(target = "objectives", ignore = true)
     GoalDefinition toEntity(GoalDefinitionDto dto);
 
     void toEntityFromDto(GoalProgressDto goalProgressDto, @MappingTarget GoalProgress existingGoalProgress);

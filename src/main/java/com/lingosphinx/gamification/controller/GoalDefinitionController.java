@@ -41,9 +41,12 @@ public class GoalDefinitionController {
     }
 
     @GetMapping
-    public ResponseEntity<List<GoalDefinitionDto>> readAll() {
-        return ResponseEntity.ok(goalDefinitionService.readAll());
+    public ResponseEntity<List<GoalDefinitionDto>> readAll(
+            @RequestParam(required = false) String type,
+            @RequestParam(required = false) List<String> reference) {
+        return ResponseEntity.ok(goalDefinitionService.readAll(type, reference));
     }
+
 
     @PutMapping("/{id}")
     public ResponseEntity<GoalDefinitionDto> update(@PathVariable Long id, @RequestBody @Valid GoalDefinitionDto goalDefinition) {

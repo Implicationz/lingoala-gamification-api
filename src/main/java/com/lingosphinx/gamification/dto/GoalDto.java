@@ -14,9 +14,8 @@ import java.util.List;
 public class GoalDto {
     private Long id;
     private GoalDefinitionDto definition;
-    private GoalDto parent;
     private ContestantDto contestant;
     private ProgressValue progress;
     private Instant lastProgress;
-    private List<GoalDto> children;
+    private List<ObjectiveDto> objectives;
 }

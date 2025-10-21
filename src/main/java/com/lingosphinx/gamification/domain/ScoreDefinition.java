@@ -1,19 +1,18 @@
 package com.lingosphinx.gamification.domain;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 @Entity
-@Builder
+@SuperBuilder
 @RequiredArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
-public class ScoreDefinition {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    private Long id;
+public class ScoreDefinition extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "zone_id", nullable = false)

@@ -2,6 +2,7 @@ package com.lingosphinx.gamification.service;
 
 import com.lingosphinx.gamification.domain.Goal;
 import com.lingosphinx.gamification.domain.GoalProgress;
+import com.lingosphinx.gamification.domain.ObjectiveDefinition;
 import com.lingosphinx.gamification.dto.GoalProgressDto;
 import com.lingosphinx.gamification.event.GoalCompletedEvent;
 import com.lingosphinx.gamification.event.GoalProgressCreatedEvent;
@@ -9,6 +10,7 @@ import com.lingosphinx.gamification.exception.ResourceNotFoundException;
 import com.lingosphinx.gamification.mapper.GoalProgressMapper;
 import com.lingosphinx.gamification.repository.GoalProgressRepository;
 import com.lingosphinx.gamification.repository.GoalRepository;
+import com.lingosphinx.gamification.repository.ObjectiveDefinitionRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -18,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -27,6 +30,7 @@ public class GoalProgressServiceImpl implements GoalProgressService {
 
     private final GoalRepository goalRepository;
     private final GoalProgressRepository goalProgressRepository;
+    private final ObjectiveDefinitionRepository objectiveDefinitionRepository;
     private final GoalProgressMapper goalProgressMapper;
     private final ApplicationEventPublisher eventPublisher;
 
@@ -35,22 +39,27 @@ public class GoalProgressServiceImpl implements GoalProgressService {
     public void handleGoalCompleted(GoalCompletedEvent event) {
         var goal = event.getGoal();
         var definition = goal.getDefinition();
-        var parent = definition.getParent();
-        if(parent == null) {
-            return;
-        }
         var contestant = goal.getContestant();
-        var linkedGoal = goalRepository.findByDefinitionAndContestant(parent, contestant).orElseGet(() -> {
-            var newGoal = Goal.fromDefinition(parent);
-            newGoal.setContestant(contestant);
-            return goalRepository.save(newGoal);
-        });
-        var sourceProgress = event.getProgress();
+
+        var matches = goalRepository.findObjectivesWithOptionalGoal(definition, contestant);
+        for (var match : matches) {
+            var parentGoal = Optional.ofNullable(match.goal()).orElseGet(() -> {
+                var newGoal = Goal.builder()
+                        .definition(match.objectiveDefinition().getParent())
+                        .contestant(contestant)
+                        .build();
+                return goalRepository.save(newGoal);
+            });
+            handleObjectiveCompleted(parentGoal, match.objectiveDefinition(), event.getProgress());
+        }
+    }
+
+    public void handleObjectiveCompleted(Goal goal, ObjectiveDefinition objective, GoalProgress sourceProgress) {
         var progress = GoalProgress.builder()
-                .goal(linkedGoal)
+                .goal(goal)
                 .startedAt(sourceProgress.getStartedAt())
                 .finishedAt(sourceProgress.getFinishedAt())
-                .value(definition.getWorth())
+                .value(objective.getWorth())
                 .build();
         this.progress(progress);
     }

@@ -15,6 +15,7 @@ public class HabitReminderNotificationEventListener {
     @Async
     @EventListener
     public void onRemindersCreated(RemindersCreatedEvent event) {
-        notificationService.sendAllPendingReminders();
+        var batchSize = 20;
+        while (notificationService.sendPendingReminders(batchSize));
     }
 }

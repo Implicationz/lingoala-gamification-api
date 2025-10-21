@@ -1,7 +1,11 @@
 package com.lingosphinx.gamification.domain;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.BatchSize;
 
 import java.time.DayOfWeek;
@@ -21,14 +25,10 @@ import java.util.function.UnaryOperator;
 )
 @Getter
 @Setter
-@Builder
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class HabitReminderTrigger {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    private Long id;
+public class HabitReminderTrigger extends BaseEntity {
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     private Habit habit;

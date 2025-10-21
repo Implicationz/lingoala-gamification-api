@@ -1,7 +1,11 @@
 package com.lingosphinx.gamification.domain;
 
-import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.BatchSize;
 
 import java.time.Instant;
@@ -10,16 +14,12 @@ import java.util.List;
 
 @BatchSize(size = 5)
 @Entity
-@Builder
+@SuperBuilder
 @RequiredArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
-public class Score {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    private Long id;
+public class Score extends BaseEntity {
 
     @ManyToOne(optional = false)
     private ScoreDefinition definition;

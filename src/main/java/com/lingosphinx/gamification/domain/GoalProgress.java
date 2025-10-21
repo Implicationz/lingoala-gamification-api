@@ -1,21 +1,20 @@
 package com.lingosphinx.gamification.domain;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import java.time.Instant;
 
 @Entity
-@Builder
+@SuperBuilder
 @RequiredArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
-public class GoalProgress {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    private Long id;
+public class GoalProgress extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "goal_id")

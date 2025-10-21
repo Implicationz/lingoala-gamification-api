@@ -1,4 +1,8 @@
 package com.lingosphinx.gamification.service;
+
+import com.lingosphinx.gamification.domain.Contestant;
+import com.lingosphinx.gamification.domain.GoalDefinition;
+import com.lingosphinx.gamification.domain.GoalSearch;
 import com.lingosphinx.gamification.dto.GoalActivationDto;
 import com.lingosphinx.gamification.dto.GoalDto;
 import jakarta.validation.Valid;
@@ -17,7 +21,9 @@ public interface GoalService {
 
     GoalDto readByTypeNameAndReference(String type, String reference);
 
-    List<GoalDto> readAllByZoneNameAndTypeName(String zone, String type);
-
     GoalDto activate(@Valid GoalActivationDto goalDefinitionActivation);
+
+    void activateParents(GoalDefinition definition, Contestant contestant);
+
+    List<GoalDto> search(GoalSearch search);
 }

@@ -11,14 +11,14 @@ import java.util.Optional;
 
 public interface GoalDefinitionRepository extends JpaRepository<GoalDefinition, Long>, JpaSpecificationExecutor<GoalDefinition> {
 
-    @EntityGraph(attributePaths = {"parent", "parent.type", "parent.zone", "children"})
+    @EntityGraph(attributePaths = {"objectives", "objectives.child"})
     Optional<GoalDefinition> findById(Long id);
 
     List<GoalDefinition> findAll();
 
-    @EntityGraph(attributePaths = {"parent", "children"})
+    @EntityGraph(attributePaths = {"objectives", "objectives.child"})
     Optional<GoalDefinition> findOne(Specification spec);
 
-    @EntityGraph(attributePaths = {"parent", "children"})
+    @EntityGraph(attributePaths = {"objectives", "objectives.child"})
     Optional<GoalDefinition> findByZone_NameAndType_NameAndReference(String zone, String type, String reference);
 }

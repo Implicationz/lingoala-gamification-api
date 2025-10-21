@@ -2,6 +2,7 @@ package com.lingosphinx.gamification.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.BatchSize;
 
 import java.util.ArrayList;
@@ -15,16 +16,12 @@ import java.util.UUID;
                 @Index(name = "idx_contestant_time_zone", columnList = "timeZone")
         }
 )
-@Builder
+@SuperBuilder
 @RequiredArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
-public class Contestant {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    private Long id;
+public class Contestant extends BaseEntity {
 
     @Column(nullable = false, unique = true)
     private UUID userId;

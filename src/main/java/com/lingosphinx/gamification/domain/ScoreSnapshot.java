@@ -2,18 +2,15 @@ package com.lingosphinx.gamification.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 @Entity
-@Builder
+@SuperBuilder
 @RequiredArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
-public class ScoreSnapshot {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    private Long id;
+public class ScoreSnapshot extends BaseEntity {
 
     @ManyToOne(optional = false)
     private Score score;

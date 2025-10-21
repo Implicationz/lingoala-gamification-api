@@ -6,7 +6,6 @@ import com.lingosphinx.gamification.domain.IanaTimeZone;
 import com.lingosphinx.gamification.domain.RenewalType;
 import org.springframework.data.jpa.domain.Specification;
 
-import java.sql.Timestamp;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.ZoneId;

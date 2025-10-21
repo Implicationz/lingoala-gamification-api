@@ -13,17 +13,14 @@ import java.util.List;
 @Setter
 public class GoalDefinitionDto {
     private Long id;
-    private GoalDefinitionDto parent;
     private GoalZoneDto zone;
     private GoalTypeDto type;
     private String name;
     private String reference;
     @Builder.Default
-    private ProgressValue worth = ProgressValue.valueOf(1);
-    @Builder.Default
     private ProgressValue target = ProgressValue.valueOf(1);
     @Builder.Default
     private ExperienceValue experience = ExperienceValue.ZERO;
     private String image;
-    private List<GoalDefinitionDto> children;
+    private List<ObjectiveDefinitionDto> objectives;
 }

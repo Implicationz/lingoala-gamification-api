@@ -1,5 +1,6 @@
 package com.lingosphinx.gamification.controller;
 
+import com.lingosphinx.gamification.domain.GoalSearch;
 import com.lingosphinx.gamification.dto.GoalActivationDto;
 import com.lingosphinx.gamification.dto.GoalDto;
 import com.lingosphinx.gamification.service.GoalService;
@@ -41,11 +42,15 @@ public class GoalController {
     }
 
     @GetMapping
-    public ResponseEntity<List<GoalDto>> readAll(@RequestParam(required=false) String zone, @RequestParam(required=false) String type) {
-        if(zone != null && type != null) {
-            return ResponseEntity.ok(goalService.readAllByZoneNameAndTypeName(zone, type));
-        }
-        return ResponseEntity.ok(goalService.readAll());
+    public ResponseEntity<List<GoalDto>> readAll(@RequestParam(required=false) String zone,
+                                                 @RequestParam(required=false) String type,
+                                                 @RequestParam(required=false) List<String> references) {
+        var search = GoalSearch.builder()
+                .zone(zone)
+                .type(type)
+                .references(references)
+                .build();
+        return ResponseEntity.ok(goalService.search(search));
     }
 
     @PutMapping("/{id}")

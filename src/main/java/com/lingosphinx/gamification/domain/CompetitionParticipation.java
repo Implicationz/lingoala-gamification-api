@@ -1,7 +1,6 @@
 package com.lingosphinx.gamification.domain;
 
 import jakarta.persistence.CascadeType;
-import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
@@ -13,13 +12,12 @@ import org.hibernate.annotations.BatchSize;
 
 import java.util.List;
 
-@Entity
 @SuperBuilder
 @RequiredArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
-public class ContestantExperience extends BaseEntity {
+public class CompetitionParticipation extends BaseEntity {
 
     @ManyToOne(optional = false)
     private Contestant contestant;

@@ -17,12 +17,9 @@ public interface GoalMapper {
     GoalDto toDto(Goal entity);
     Goal toEntity(GoalDto dto);
 
-    @Mapping(target = "children", ignore = true)
-    @Mapping(target = "parent", ignore = true)
+    @Mapping(target = "objectives", ignore = true)
     GoalDefinitionDto toDto(GoalDefinition entity);
-
-    @Mapping(target = "children", ignore = true)
-    @Mapping(target = "parent", ignore = true)
+    @Mapping(target = "objectives", ignore = true)
     GoalDefinition toEntity(GoalDefinitionDto dto);
 
     @Mapping(target = "experiences", ignore = true)
@@ -32,6 +29,7 @@ public interface GoalMapper {
 
     List<GoalDto> toDtoList(List<Goal> entities);
 
+    @Mapping(target = "objectives", ignore = true)
     void toEntityFromDto(GoalDto goalDto, @MappingTarget  Goal existingGoal);
 
 }

@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.util.List;
 
 @Slf4j
 @Service
@@ -47,6 +46,7 @@ public class HabitReminderNotificationServiceImpl implements HabitReminderNotifi
     }
 
     @Transactional
+    @Override
     public boolean sendPendingReminders(int batchSize) {
         var maxTrialCount = 3;
         var batch = habitReminderRepository.findLockUnsentReminders(maxTrialCount, batchSize);
@@ -59,7 +59,7 @@ public class HabitReminderNotificationServiceImpl implements HabitReminderNotifi
     @Override
     public void sendAllPendingReminders() {
         var batchSize = 20;
-        while (sendPendingReminders(batchSize));
+        while (this.sendPendingReminders(batchSize));
     }
 
 }

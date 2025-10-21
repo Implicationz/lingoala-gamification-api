@@ -2,6 +2,7 @@ package com.lingosphinx.gamification.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.BatchSize;
 
 import java.time.Instant;
@@ -9,17 +10,13 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Stream;
 
-@Builder
+@SuperBuilder
 @RequiredArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
 @Entity
-public class Habit {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    private Long id;
+public class Habit extends BaseEntity {
 
     @ManyToOne
     private HabitDefinition definition;
