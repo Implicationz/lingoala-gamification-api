@@ -2,12 +2,12 @@ package com.lingosphinx.gamification;
 
 import com.lingosphinx.gamification.domain.ProgressValue;
 import com.lingosphinx.gamification.dto.*;
-import com.lingosphinx.gamification.repository.GoalRepository;
-import com.lingosphinx.gamification.repository.GoalDefinitionRepository;
 import com.lingosphinx.gamification.repository.ContestantRepository;
-import com.lingosphinx.gamification.service.GoalService;
-import com.lingosphinx.gamification.service.GoalDefinitionService;
+import com.lingosphinx.gamification.repository.GoalDefinitionRepository;
+import com.lingosphinx.gamification.repository.GoalRepository;
 import com.lingosphinx.gamification.service.ContestantService;
+import com.lingosphinx.gamification.service.GoalDefinitionService;
+import com.lingosphinx.gamification.service.GoalService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,7 +78,6 @@ class GoalServiceTest {
         dto.setType(GoalTypeDto.builder().name("type_" + name).build());
         dto.setZone(GoalZoneDto.builder().name("zone_" + name).build());
         dto.setReference("ref_" + name);
-        dto.setWorth(ProgressValue.valueOf(10));
         dto.setTarget(ProgressValue.valueOf(5));
         dto.setImage("img.png");
         return goalDefinitionService.create(dto);
