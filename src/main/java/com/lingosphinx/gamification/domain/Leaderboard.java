@@ -20,7 +20,6 @@ public class Leaderboard extends BaseEntity {
     @ManyToOne(optional = false)
     private GoalZone zone;
 
-    @Column(nullable = false)
     private IanaTimeZone timeZone;
 
     @Builder.Default

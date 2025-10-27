@@ -29,5 +29,21 @@ public class ProgressValue {
         return this.value >= other.value;
     }
 
+    public ProgressValue weighted(long factor) {
+        return ProgressValue.valueOf(this.value * factor);
+    }
+
+    public ProgressValue weighted(double factor) {
+        var result = Math.round(this.value * factor);
+        return ProgressValue.valueOf(result);
+    }
+
+    public ProgressValue difference(ProgressValue value) {
+        return ProgressValue.valueOf(this.value - value.value);
+    }
+
+    public ProgressValue add(ProgressValue delta) {
+        return ProgressValue.valueOf(this.value + delta.value);
+    }
 }
 

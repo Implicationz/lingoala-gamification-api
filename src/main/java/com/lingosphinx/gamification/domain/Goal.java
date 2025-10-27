@@ -70,6 +70,10 @@ public class Goal extends BaseEntity {
         return definition.getReference();
     }
 
+    public GoalZone getZone() {
+        return definition.getZone();
+    }
+
     public ProgressValue getTarget() {
         return definition.getTarget();
     }
@@ -94,5 +98,9 @@ public class Goal extends BaseEntity {
         }
         this.progress = value;
         this.lastProgress = Instant.now();
+    }
+
+    public String getImage() {
+        return definition.getImage();
     }
 }

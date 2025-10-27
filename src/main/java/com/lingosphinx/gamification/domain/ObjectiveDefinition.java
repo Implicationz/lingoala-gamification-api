@@ -17,11 +17,23 @@ public class ObjectiveDefinition extends BaseEntity {
 
     @Builder.Default
     @Column(nullable = false)
-    private ProgressValue worth = ProgressValue.valueOf(1);
+    private Double worth = 1.0;
 
     @ManyToOne(optional = false)
     private GoalDefinition parent;
 
     @ManyToOne(optional = false)
     private GoalDefinition child;
+
+    public GoalProgress propagate(Goal goal, GoalProgress sourceProgress) {
+        var delta = sourceProgress.delta(this.getWorth());
+        var value = goal.getProgress().add(delta);
+        var progress = GoalProgress.builder()
+                .goal(goal)
+                .startedAt(sourceProgress.getStartedAt())
+                .finishedAt(sourceProgress.getFinishedAt())
+                .value(value)
+                .build();
+        return progress;
+    }
 }

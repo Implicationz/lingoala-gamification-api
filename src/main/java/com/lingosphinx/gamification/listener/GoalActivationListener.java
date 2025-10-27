@@ -1,7 +1,8 @@
-package com.lingosphinx.gamification.event;
+package com.lingosphinx.gamification.listener;
 
 
-import com.lingosphinx.gamification.service.GoalServiceImpl;
+import com.lingosphinx.gamification.event.GoalActivatedEvent;
+import com.lingosphinx.gamification.service.GoalService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
@@ -13,7 +14,7 @@ import org.springframework.transaction.event.TransactionalEventListener;
 @RequiredArgsConstructor
 public class GoalActivationListener {
 
-    private final GoalServiceImpl goalService;
+    private final GoalService goalService;
 
     @Async
     @TransactionalEventListener

@@ -14,8 +14,6 @@ import com.lingosphinx.gamification.repository.ObjectiveDefinitionRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.event.EventListener;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,10 +32,9 @@ public class GoalProgressServiceImpl implements GoalProgressService {
     private final GoalProgressMapper goalProgressMapper;
     private final ApplicationEventPublisher eventPublisher;
 
-    @Async
-    @EventListener
-    public void handleGoalCompleted(GoalCompletedEvent event) {
-        var goal = event.getGoal();
+    @Override
+    public void propagate(GoalProgress goalProgress) {
+        var goal = goalProgress.getGoal();
         var definition = goal.getDefinition();
         var contestant = goal.getContestant();
 
@@ -50,30 +47,26 @@ public class GoalProgressServiceImpl implements GoalProgressService {
                         .build();
                 return goalRepository.save(newGoal);
             });
-            handleObjectiveCompleted(parentGoal, match.objectiveDefinition(), event.getProgress());
+            objectivePropagation(parentGoal, match.objectiveDefinition(), goalProgress);
         }
     }
 
-    public void handleObjectiveCompleted(Goal goal, ObjectiveDefinition objective, GoalProgress sourceProgress) {
-        var progress = GoalProgress.builder()
-                .goal(goal)
-                .startedAt(sourceProgress.getStartedAt())
-                .finishedAt(sourceProgress.getFinishedAt())
-                .value(objective.getWorth())
-                .build();
+    public void objectivePropagation(Goal goal, ObjectiveDefinition objective, GoalProgress sourceProgress) {
+        var progress = objective.propagate(goal, sourceProgress);
         this.progress(progress);
     }
 
     public GoalProgress progress(GoalProgress goalProgress) {
         var goal = goalProgress.getGoal();
+
+        eventPublisher.publishEvent(new GoalProgressCreatedEvent(goalProgress));
+
         var wasComplete = goal.isComplete();
         goal.apply(goalProgress);
         var isComplete = goal.isComplete();
 
         var savedProgress = goalProgressRepository.save(goalProgress);
         log.info("Progress created successfully: id={}", savedProgress.getId());
-
-        eventPublisher.publishEvent(new GoalProgressCreatedEvent(savedProgress));
 
         if (!wasComplete && isComplete) {
             eventPublisher.publishEvent(new GoalCompletedEvent(goal, savedProgress));

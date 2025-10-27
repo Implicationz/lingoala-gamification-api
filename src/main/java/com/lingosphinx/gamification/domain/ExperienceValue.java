@@ -24,5 +24,9 @@ public class ExperienceValue {
     public static ExperienceValue valueOf(long value) {
         return new ExperienceValue(value);
     }
+
+    public ExperienceValue add(ExperienceValue experience) {
+        return ExperienceValue.valueOf(this.value + experience.value);
+    }
 }
 

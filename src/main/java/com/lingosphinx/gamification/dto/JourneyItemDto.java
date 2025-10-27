@@ -7,10 +7,10 @@ import lombok.*;
 @AllArgsConstructor
 @Getter
 @Setter
-public class ObjectiveDefinitionDto {
+public class JourneyItemDto {
 
     private Long id;
-    private Double worth = 1.0;
-    private GoalDefinitionDto parent;
-    private GoalDefinitionDto child;
+    private JourneyItemTypeDto type;
+    private String name;
+    private String reference;
 }
