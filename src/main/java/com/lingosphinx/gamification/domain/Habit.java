@@ -44,7 +44,7 @@ public class Habit extends BaseEntity {
                 .definition(definition)
                 .contestant(contestant)
                 .streak(new Streak())
-                .progress(ProgressValue.valueOf(1))
+                .progress(ProgressValue.ZERO)
                 .build();
 
         habit.setTriggers(Stream.of(

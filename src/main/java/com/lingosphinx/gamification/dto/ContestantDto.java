@@ -1,5 +1,6 @@
 package com.lingosphinx.gamification.dto;
 
+import com.lingosphinx.gamification.domain.IanaTimeZone;
 import lombok.*;
 
 import java.util.ArrayList;
@@ -15,6 +16,9 @@ public class ContestantDto {
 
     private Long id;
     private UUID userId;
+    private IanaTimeZone timeZone;
+    private String image;
+    private String name;
     private List<ContestantExperienceDto> experiences = new ArrayList<>();
 
 }

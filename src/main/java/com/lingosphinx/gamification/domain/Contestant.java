@@ -28,6 +28,9 @@ public class Contestant extends BaseEntity {
 
     private IanaTimeZone timeZone;
 
+    private String image;
+    private String name;
+
     @Builder.Default
     @BatchSize(size = 10)
     @OneToMany(mappedBy = "contestant", cascade = CascadeType.ALL, orphanRemoval = true)

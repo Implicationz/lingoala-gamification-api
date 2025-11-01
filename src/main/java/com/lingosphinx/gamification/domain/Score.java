@@ -1,9 +1,6 @@
 package com.lingosphinx.gamification.domain;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.BatchSize;
@@ -14,6 +11,8 @@ import java.util.List;
 
 @BatchSize(size = 5)
 @Entity
+@Table(name = "score", uniqueConstraints = @UniqueConstraint(name = "uq_score_definition_contestant",
+        columnNames = {"definition_id", "contestant_id"}))
 @SuperBuilder
 @RequiredArgsConstructor
 @AllArgsConstructor

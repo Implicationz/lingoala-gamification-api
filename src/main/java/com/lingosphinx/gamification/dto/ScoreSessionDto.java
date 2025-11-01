@@ -24,5 +24,5 @@ public class ScoreSessionDto {
     private Instant finishedAt = Instant.now();
 
     @Builder.Default
-    private List<ScoreProgress> events = new ArrayList<>();
+    private List<ScoreProgressDto> events = new ArrayList<>();
 }

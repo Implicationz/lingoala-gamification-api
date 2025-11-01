@@ -92,15 +92,18 @@ public class Goal extends BaseEntity {
 
 
     public void apply(GoalProgress goalProgress) {
-        var value = goalProgress.getValue();
-        if(this.progress.isGreaterOrEqual(value)) {
+        if(!this.canApply(goalProgress)) {
             return;
         }
-        this.progress = value;
+        this.progress = goalProgress.getValue();
         this.lastProgress = Instant.now();
     }
 
     public String getImage() {
         return definition.getImage();
+    }
+
+    public boolean canApply(GoalProgress goalProgress) {
+        return this.progress.isGreaterOrEqual(goalProgress.getValue());
     }
 }
