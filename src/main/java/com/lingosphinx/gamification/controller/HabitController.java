@@ -41,8 +41,8 @@ public class HabitController {
     }
 
     @GetMapping
-    public ResponseEntity<List<HabitDto>> readAll() {
-        return ResponseEntity.ok(habitService.readAll());
+    public ResponseEntity<List<HabitDto>> readAll(@RequestParam(name = "zone", required = false) Long zone) {
+        return ResponseEntity.ok(habitService.readAll(zone));
     }
 
     @PutMapping("/{id}")

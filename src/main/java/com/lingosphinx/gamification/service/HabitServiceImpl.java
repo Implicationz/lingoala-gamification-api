@@ -88,10 +88,17 @@ public class HabitServiceImpl implements HabitService {
         return habitMapper.toDto(habit);
     }
 
-    @Override
     @Transactional(readOnly = true)
-    public List<HabitDto> readAll() {
-        var result = habitRepository.findAll().stream()
+    @Override
+    public List<HabitDto> readAll(Long zoneId) {
+        List<Habit> habits;
+        if (zoneId == null) {
+            habits = habitRepository.findAll();
+        } else {
+            var spec = HabitSpecifications.byZoneId(zoneId);
+            habits = habitRepository.findAll(spec);
+        }
+        var result = habits.stream()
                 .map(habitMapper::toDto)
                 .toList();
         log.info("All habits read successfully, count={}", result.size());

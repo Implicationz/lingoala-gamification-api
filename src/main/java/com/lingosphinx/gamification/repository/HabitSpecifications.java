@@ -76,4 +76,8 @@ public class HabitSpecifications {
             );
         };
     }
+
+    public static Specification<Habit> byZoneId(Long zoneId) {
+        return (root, query, cb) -> cb.equal(root.get("definition").get("zone").get("id"), zoneId);
+    }
 }
