@@ -117,7 +117,7 @@ class HabitServiceTest {
         UUID userId2 = UUID.randomUUID();
         createSampleHabit("Habit1", userId1);
         createSampleHabit("Habit2", userId2);
-        List<HabitDto> all = habitService.readAll();
+        List<HabitDto> all = habitService.readAll(null);
         assertEquals(2, all.size());
         assertTrue(all.stream().anyMatch(h -> "Habit1".equals(h.getDefinition().getName())));
         assertTrue(all.stream().anyMatch(h -> "Habit2".equals(h.getDefinition().getName())));
