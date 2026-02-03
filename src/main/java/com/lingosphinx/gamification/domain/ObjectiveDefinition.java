@@ -36,4 +36,8 @@ public class ObjectiveDefinition extends BaseEntity {
                 .build();
         return progress;
     }
+
+    public ProgressValue getWeightedTarget() {
+        return this.child.getTarget().weighted(this.worth);
+    }
 }

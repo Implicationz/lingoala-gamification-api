@@ -47,6 +47,6 @@ public class Streak extends BaseEntity {
 
     public void reset() {
         this.duration = 0;
-        this.lastProgress = Instant.now();
+        this.lastReset = Instant.now();
     }
 }

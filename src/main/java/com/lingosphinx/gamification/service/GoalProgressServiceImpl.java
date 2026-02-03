@@ -59,7 +59,7 @@ public class GoalProgressServiceImpl implements GoalProgressService {
     public GoalProgress progress(GoalProgress goalProgress) {
         var goal = goalProgress.getGoal();
 
-        if(goal.canApply(goalProgress)) {
+        if(!goal.canApply(goalProgress)) {
             return goalProgress;
         }
 

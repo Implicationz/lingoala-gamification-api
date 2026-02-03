@@ -48,4 +48,13 @@ public class GoalDefinition extends BaseEntity {
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ObjectiveDefinition> objectives = new ArrayList<>();
 
+    public ProgressValue totalObjectiveTarget() {
+        return this.objectives.stream()
+                .map(ObjectiveDefinition::getWeightedTarget)
+                .reduce(new ProgressValue(0), ProgressValue::add);
+    }
+    public void recalculate() {
+        this.target = this.totalObjectiveTarget();
+    }
+
 }
