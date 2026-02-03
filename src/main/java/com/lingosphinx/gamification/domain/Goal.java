@@ -104,6 +104,6 @@ public class Goal extends BaseEntity {
     }
 
     public boolean canApply(GoalProgress goalProgress) {
-        return this.progress.isGreaterOrEqual(goalProgress.getValue());
+        return goalProgress.getValue().isGreater(this.progress);
     }
 }
