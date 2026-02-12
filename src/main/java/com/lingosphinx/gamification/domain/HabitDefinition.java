@@ -20,8 +20,12 @@ import lombok.experimental.SuperBuilder;
 public class HabitDefinition extends BaseEntity {
 
     @ManyToOne
-    @JoinColumn(name = "zone_id", nullable = false)
+    @JoinColumn(nullable = false)
     private GoalZone zone;
+
+    @ManyToOne
+    @JoinColumn(nullable = true)
+    private HabitType type;
 
     private String name = "";
 

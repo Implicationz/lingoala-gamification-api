@@ -15,6 +15,7 @@ public class HabitDefinitionDto {
     private Long id;
 
     private GoalZoneDto zone;
+    private HabitTypeDto type;
 
     private String name = "";
 
