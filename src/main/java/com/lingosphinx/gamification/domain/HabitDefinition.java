@@ -6,10 +6,10 @@ import lombok.experimental.SuperBuilder;
 
 @Entity
 @Table(
-        uniqueConstraints = @UniqueConstraint(columnNames = {"zone_id", "name"}),
+        uniqueConstraints = @UniqueConstraint(columnNames = {"zone_id", "type_id"}),
         indexes = {
                 @Index(name = "idx_habitdefinition_zone", columnList = "zone_id"),
-                @Index(name = "idx_habitdefinition_zone_name", columnList = "zone_id,name")
+                @Index(name = "idx_habitdefinition_zone_type", columnList = "zone_id,type_id")
         }
 )
 @SuperBuilder
@@ -24,7 +24,7 @@ public class HabitDefinition extends BaseEntity {
     private GoalZone zone;
 
     @ManyToOne
-    @JoinColumn(nullable = true)
+    @JoinColumn(nullable = false)
     private HabitType type;
 
     private String name = "";

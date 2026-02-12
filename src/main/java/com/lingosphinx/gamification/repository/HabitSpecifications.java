@@ -67,12 +67,12 @@ public class HabitSpecifications {
         );
     }
 
-    public static Specification<Habit> byZoneNameAndNameAndContestant(String zone, String name, Contestant contestant) {
+    public static Specification<Habit> byZoneNameAndTypeNameAndContestant(String zone, String name, Contestant contestant) {
         return (root, query, cb) -> {
             var habitDefinition = root.get("definition");
             return cb.and(cb.equal(root.get("contestant"), contestant),
                     cb.equal(habitDefinition.get("zone").get("name"), zone),
-                    cb.equal(habitDefinition.get("name"), name)
+                    cb.equal(habitDefinition.get("type").get("name"), name)
             );
         };
     }

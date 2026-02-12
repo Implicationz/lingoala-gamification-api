@@ -5,5 +5,5 @@ import lombok.Data;
 @Data
 public class HabitActivationDto {
     private String zone;
-    private String name;
+    private String type;
 }

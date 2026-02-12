@@ -1,6 +1,7 @@
 package com.lingosphinx.gamification.service;
 
 import com.lingosphinx.gamification.domain.Habit;
+import com.lingosphinx.gamification.domain.HabitDefinition;
 import com.lingosphinx.gamification.domain.IanaTimeZone;
 import com.lingosphinx.gamification.dto.HabitActivationDto;
 import com.lingosphinx.gamification.dto.HabitDto;
@@ -27,6 +28,8 @@ public class HabitServiceImpl implements HabitService {
 
     private final HabitRepository habitRepository;
     private final HabitDefinitionRepository habitDefinitionRepository;
+    private final GoalZoneRepository goalZoneRepository;
+    private final HabitTypeRepository habitTypeRepository;
     private final HabitMapper habitMapper;
 
     private final StreakProgressRepository streakProgressRepository;
@@ -80,7 +83,7 @@ public class HabitServiceImpl implements HabitService {
     @Transactional(readOnly = true)
     public HabitDto readByZoneAndName(String zone, String name) {
         var contestant = contestantService.readCurrentContestant();
-        var spec = HabitSpecifications.byZoneNameAndNameAndContestant(zone, name, contestant);
+        var spec = HabitSpecifications.byZoneNameAndTypeNameAndContestant(zone, name, contestant);
         var habit = habitRepository.findOne(spec)
                 .orElseThrow(() -> new ResourceNotFoundException("Habit not found for zone=" + zone + " and name=" + name + " and contestant=" + contestant.getId()));
         log.info("Habit read by zone, name and contestant: zone={}, name={}, contestant={}, id={}", zone, name, contestant.getId(), habit.getId());
@@ -144,11 +147,21 @@ public class HabitServiceImpl implements HabitService {
     @Override
     public HabitDto activate(HabitActivationDto habitActivation) {
         var contestant = contestantService.readCurrentContestant();
-        var spec = HabitSpecifications.byZoneNameAndNameAndContestant(habitActivation.getZone(), habitActivation.getName(), contestant);
+        var spec = HabitSpecifications.byZoneNameAndTypeNameAndContestant(habitActivation.getZone(), habitActivation.getType(), contestant);
         var found = habitRepository.findOne(spec);
         var activated = found.orElseGet(() -> {
-            var definition = habitDefinitionRepository.findByZone_NameAndName(habitActivation.getZone(), habitActivation.getName())
-                    .orElseThrow(() -> new IllegalArgumentException("HabitDefinition is invalid."));
+            var definition = habitDefinitionRepository.findByZone_NameAndType_Name(habitActivation.getZone(), habitActivation.getType())
+                    .orElseGet(() -> {
+                        var zone = goalZoneRepository.findByName(habitActivation.getZone())
+                                .orElseThrow(() -> new IllegalArgumentException("GoalZone for HabitDefinition is invalid."));
+                        var type = habitTypeRepository.findByName(habitActivation.getType())
+                                .orElseThrow(() -> new IllegalArgumentException("HabitType for HabitDefinition is invalid."));
+                        var newHabitDefinition = HabitDefinition.builder()
+                                .zone(zone)
+                                .type(type)
+                                .build();
+                        return habitDefinitionRepository.save(newHabitDefinition);
+                    });
             var habit = Habit.fromDefinition(definition, contestant);
             var savedGoal = habitRepository.save(habit);
             log.info("Goal activated successfully: id={}", savedGoal.getId());
