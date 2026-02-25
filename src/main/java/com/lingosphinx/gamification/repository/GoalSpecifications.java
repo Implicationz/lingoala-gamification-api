@@ -33,19 +33,16 @@ public class GoalSpecifications {
         return (root, query, cb) -> {
             var goalDefinition = root.get("definition");
             return cb.and(cb.equal(root.get("contestant"), contestant),
-                cb.equal(goalDefinition.get("zone").get("name"), zone),
-                cb.equal(goalDefinition.get("type").get("name"), type),
-                cb.equal(goalDefinition.get("reference"), reference)
+                    cb.equal(goalDefinition.get("zone").get("name"), zone),
+                    cb.equal(goalDefinition.get("type").get("name"), type),
+                    cb.equal(goalDefinition.get("reference"), reference)
             );
         };
     }
 
     public static Specification<Goal> byContestant(Contestant contestant) {
-        return (root, query, cb) -> {
-            return cb.equal(root.get("contestant"), contestant);
-        };
+        return (root, query, cb) -> cb.equal(root.get("contestant"), contestant);
     }
-
 
     public static Specification<Goal> byParentGoalDefinition(GoalDefinition parentGoalDefinition) {
         return (root, query, cb) -> {
@@ -68,16 +65,27 @@ public class GoalSpecifications {
     }
 
     public static Specification<Goal> withDefinition(List<GoalDefinition> definitions, Contestant contestant) {
-        return (root, query, cb) -> {
-            return cb.and(
-                    cb.equal(root.get("definition"), definitions),
-                    cb.equal(root.get("contestant"), contestant));
-        };
+        return (root, query, cb) -> cb.and(
+                cb.equal(root.get("definition"), definitions),
+                cb.equal(root.get("contestant"), contestant)
+        );
     }
 
     public static Specification<Goal> byReferences(List<String> references) {
+        return (root, query, cb) -> root.get("definition").get("reference").in(references);
+    }
+
+    public static Specification<Goal> isCompleted() {
         return (root, query, cb) -> {
-            return root.get("definition").get("reference").in(references);
+            var diff = cb.diff(root.get("progress").get("value"), root.get("definition").get("target").get("value"));
+            return cb.ge(diff, 0);
+        };
+    }
+
+    public static Specification<Goal> isNotCompleted() {
+        return (root, query, cb) -> {
+            var diff = cb.diff(root.get("progress").get("value"), root.get("definition").get("target").get("value"));
+            return cb.lt(diff, 0);
         };
     }
 }

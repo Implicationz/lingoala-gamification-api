@@ -117,6 +117,11 @@ public class GoalServiceImpl implements GoalService {
             spec = spec.and(GoalSpecifications.byReferences(search.getReferences()));
         }
 
+        var isCompleted = search.getIsCompleted();
+        if(isCompleted != null) {
+            spec = spec.and(isCompleted ? GoalSpecifications.isCompleted() : GoalSpecifications.isNotCompleted());
+        }
+
         var goals = goalRepository.findAll(spec);
         var definitions = goals.stream().map(Goal::getDefinition).toList();
         var objectives = goalRepository.findChildObjectives(definitions, contestant);

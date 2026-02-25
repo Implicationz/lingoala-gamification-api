@@ -13,5 +13,6 @@ import java.util.List;
 public class GoalSearch {
     private String zone;
     private String type;
+    private Boolean isCompleted;
     private List<String> references = new ArrayList<>();
 }

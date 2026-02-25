@@ -44,11 +44,13 @@ public class GoalController {
     @GetMapping
     public ResponseEntity<List<GoalDto>> readAll(@RequestParam(required=false) String zone,
                                                  @RequestParam(required=false) String type,
-                                                 @RequestParam(required=false) List<String> references) {
+                                                 @RequestParam(required=false) List<String> references,
+                                                 @RequestParam(required=false) Boolean isCompleted) {
         var search = GoalSearch.builder()
                 .zone(zone)
                 .type(type)
                 .references(references)
+                .isCompleted(isCompleted)
                 .build();
         return ResponseEntity.ok(goalService.search(search));
     }
