@@ -77,14 +77,14 @@ public class GoalSpecifications {
 
     public static Specification<Goal> isCompleted() {
         return (root, query, cb) -> {
-            var diff = cb.diff(root.get("progress").get("value"), root.get("definition").get("target").get("value"));
+            var diff = cb.diff(root.get("progress"), root.get("definition").get("target"));
             return cb.ge(diff, 0);
         };
     }
 
     public static Specification<Goal> isNotCompleted() {
         return (root, query, cb) -> {
-            var diff = cb.diff(root.get("progress").get("value"), root.get("definition").get("target").get("value"));
+            var diff = cb.diff(root.get("progress"), root.get("definition").get("target"));
             return cb.lt(diff, 0);
         };
     }
