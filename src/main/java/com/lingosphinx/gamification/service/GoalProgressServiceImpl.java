@@ -11,6 +11,7 @@ import com.lingosphinx.gamification.mapper.GoalProgressMapper;
 import com.lingosphinx.gamification.repository.GoalProgressRepository;
 import com.lingosphinx.gamification.repository.GoalRepository;
 import com.lingosphinx.gamification.repository.ObjectiveDefinitionRepository;
+import com.lingosphinx.gamification.repository.ObjectiveRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -28,32 +29,19 @@ public class GoalProgressServiceImpl implements GoalProgressService {
 
     private final GoalRepository goalRepository;
     private final GoalProgressRepository goalProgressRepository;
-    private final ObjectiveDefinitionRepository objectiveDefinitionRepository;
+    private final ObjectiveRepository objectiveRepository;
     private final GoalProgressMapper goalProgressMapper;
     private final ApplicationEventPublisher eventPublisher;
 
     @Override
     public void propagate(GoalProgress goalProgress) {
         var goal = goalProgress.getGoal();
-        var definition = goal.getDefinition();
-        var contestant = goal.getContestant();
-
-        var matches = goalRepository.findObjectivesWithOptionalGoal(definition, contestant);
-        for (var match : matches) {
-            var parentGoal = Optional.ofNullable(match.goal()).orElseGet(() -> {
-                var newGoal = Goal.builder()
-                        .definition(match.objectiveDefinition().getParent())
-                        .contestant(contestant)
-                        .build();
-                return goalRepository.save(newGoal);
-            });
-            objectivePropagation(parentGoal, match.objectiveDefinition(), goalProgress);
-        }
-    }
-
-    public void objectivePropagation(Goal goal, ObjectiveDefinition objective, GoalProgress sourceProgress) {
-        var progress = objective.propagate(goal, sourceProgress);
-        this.progress(progress);
+        var objectives = objectiveRepository.findAllByChildAndPropagationIsNull(goal);
+        objectives.forEach(objective -> {
+            var progress = objective.propagate(goalProgress);
+            var saved = this.progress(progress);
+            objective.setPropagation(saved);
+        });
     }
 
     public GoalProgress progress(GoalProgress goalProgress) {

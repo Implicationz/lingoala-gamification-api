@@ -11,7 +11,7 @@ import lombok.experimental.SuperBuilder;
 @Setter
 @Entity
 @Table(
-    uniqueConstraints = @UniqueConstraint(columnNames = {"parent_id", "source_id"})
+    uniqueConstraints = @UniqueConstraint(columnNames = {"parent_id", "child_id"})
 )
 public class ObjectiveDefinition extends BaseEntity {
 
@@ -24,18 +24,6 @@ public class ObjectiveDefinition extends BaseEntity {
 
     @ManyToOne(optional = false)
     private GoalDefinition child;
-
-    public GoalProgress propagate(Goal goal, GoalProgress sourceProgress) {
-        var delta = sourceProgress.delta(this.getWorth());
-        var value = goal.getProgress().add(delta);
-        var progress = GoalProgress.builder()
-                .goal(goal)
-                .startedAt(sourceProgress.getStartedAt())
-                .finishedAt(sourceProgress.getFinishedAt())
-                .value(value)
-                .build();
-        return progress;
-    }
 
     public ProgressValue getWeightedTarget() {
         return this.child.getTarget().weighted(this.worth);

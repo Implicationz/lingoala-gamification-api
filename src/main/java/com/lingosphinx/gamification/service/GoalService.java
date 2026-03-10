@@ -23,7 +23,5 @@ public interface GoalService {
 
     GoalDto activate(@Valid GoalActivationDto goalDefinitionActivation);
 
-    void activateParents(GoalDefinition definition, Contestant contestant);
-
     List<GoalDto> search(GoalSearch search);
 }

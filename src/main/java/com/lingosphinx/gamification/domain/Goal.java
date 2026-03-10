@@ -3,6 +3,7 @@ package com.lingosphinx.gamification.domain;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.BatchSize;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -35,12 +36,14 @@ public class Goal extends BaseEntity {
     private Instant lastProgress = Instant.EPOCH;
 
     @Builder.Default
-    @Transient
+    @BatchSize(size = 20)
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Objective> objectives = new ArrayList<>();
 
-    public static Goal fromDefinition(GoalDefinition definition) {
+    public static Goal fromDefinition(GoalDefinition definition, Contestant contestant) {
         return Goal.builder()
                 .definition(definition)
+                .contestant(contestant)
                 .progress(ProgressValue.ZERO)
                 .lastProgress(Instant.EPOCH)
                 .objectives(new ArrayList<>())

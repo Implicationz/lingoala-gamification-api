@@ -15,7 +15,7 @@ import java.util.Optional;
 
 public interface GoalRepository extends JpaRepository<Goal, Long>, JpaSpecificationExecutor<Goal> {
     @Override
-    @EntityGraph(attributePaths = {"definition", "definition.zone", "definition.type", "contestant"})
+    @EntityGraph(attributePaths = {"definition", "definition.zone", "definition.type", "contestant", "objectives"})
     Optional<Goal> findById(Long id);
 
     @Override
@@ -23,7 +23,7 @@ public interface GoalRepository extends JpaRepository<Goal, Long>, JpaSpecificat
     List<Goal> findAll();
 
     @Override
-    @EntityGraph(attributePaths = {"definition", "definition.zone", "definition.type", "contestant"})
+    @EntityGraph(attributePaths = {"definition", "definition.zone", "definition.type", "contestant", "objectives"})
     Optional<Goal> findOne(Specification spec);
 
     @EntityGraph(attributePaths = {"definition", "definition.zone", "definition.type"})

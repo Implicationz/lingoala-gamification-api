@@ -30,6 +30,12 @@ public class ProgressValue {
         return this.value > other.value;
     }
 
+    public boolean isLess(ProgressValue other) {
+        if(other == null) {
+            return false;
+        }
+        return this.value < other.value;
+    }
 
     public ProgressValue weighted(long factor) {
         return ProgressValue.valueOf(this.value * factor);

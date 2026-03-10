@@ -30,4 +30,11 @@ public class GoalProgress extends BaseEntity {
     public ProgressValue delta(double weight) {
         return this.value.weighted(weight).difference(goal.getProgress().weighted(weight));
     }
+
+    public static GoalProgress of(Goal goal, ProgressValue value) {
+        return GoalProgress.builder()
+                .goal(goal)
+                .value(value)
+                .build();
+    }
 }

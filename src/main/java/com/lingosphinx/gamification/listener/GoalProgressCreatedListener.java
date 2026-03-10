@@ -6,6 +6,7 @@ import com.lingosphinx.gamification.service.GoalProgressService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 @Slf4j
@@ -15,6 +16,7 @@ public class GoalProgressCreatedListener {
 
     private final GoalProgressService goalProgressService;
 
+    @Async
     @EventListener
     public void onGoalProgressCreated(GoalProgressCreatedEvent event) {
         var goalProgress = event.getProgress();

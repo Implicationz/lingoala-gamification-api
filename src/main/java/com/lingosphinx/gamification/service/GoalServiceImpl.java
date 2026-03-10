@@ -47,22 +47,11 @@ public class GoalServiceImpl implements GoalService {
         return goalMapper.toDto(savedGoal);
     }
 
-    protected void readObjectives(Goal goal) {
-        var spec = GoalSpecifications.byContestant(goal.getContestant())
-                .and(GoalSpecifications.byParentGoalDefinition(goal.getDefinition()));
-        var goals = goalRepository.findAll(spec);
-        var objectives = goals.stream()
-                .map(g -> Objective.builder().child(g).build())
-                .toList();
-        goal.setObjectives(objectives);
-    }
-
     @Override
     @Transactional(readOnly = true)
     public GoalDto readById(Long id) {
         var goal = goalRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Goal not found"));
-        readObjectives(goal);
         log.info("Goal read successfully: id={}", id);
         return goalMapper.toDto(goal);
     }
@@ -99,7 +88,6 @@ public class GoalServiceImpl implements GoalService {
         var spec = GoalSpecifications.byTypeNameAndReference(type, reference);
         var goal = goalRepository.findOne(spec)
                 .orElseThrow(() -> new ResourceNotFoundException("Goal not found for type=" + type + " and reference=" + reference));
-        readObjectives(goal);
         log.info("Goal read by type and reference: type={}, reference={}, id={}", type, reference, goal.getId());
         return goalMapper.toDto(goal);
     }
@@ -152,32 +140,12 @@ public class GoalServiceImpl implements GoalService {
                             goalActivation.getReference())
                     .orElseThrow();
 
-            var savedGoal = this.activate(definition, contestant);
-            return savedGoal;
+            var goal = Goal.fromDefinition(definition, contestant);
+            return goalRepository.save(goal);
         });
+
+        eventPublisher.publishEvent(new GoalActivatedEvent(activated));
+        log.info("Goal activation: id={}", activated.getId());
         return this.goalMapper.toDto(activated);
-    }
-
-    public Goal activate(GoalDefinition definition, Contestant contestant) {
-        var goal = Goal.fromDefinition(definition);
-        goal.setContestant(contestant);
-
-        var savedGoal = goalRepository.save(goal);
-        eventPublisher.publishEvent(new GoalActivatedEvent(definition, contestant));
-        log.info("Goal activated successfully: id={}", savedGoal.getId());
-        return savedGoal;
-    }
-
-    @Override
-    public void activateParents(GoalDefinition definition, Contestant contestant) {
-        var parents = objectiveDefinitionRepository
-                .findAll(ObjectiveDefinitionSpecifications.parentWithoutGoalForContestant(definition, contestant))
-                .stream()
-                .map(ObjectiveDefinition::getParent)
-                .toList();
-
-        for (var parent : parents) {
-            activate(parent, contestant);
-        }
     }
 }

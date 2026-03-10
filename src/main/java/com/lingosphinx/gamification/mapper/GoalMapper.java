@@ -1,11 +1,7 @@
 package com.lingosphinx.gamification.mapper;
 
-import com.lingosphinx.gamification.domain.Contestant;
-import com.lingosphinx.gamification.domain.Goal;
-import com.lingosphinx.gamification.domain.GoalDefinition;
-import com.lingosphinx.gamification.dto.ContestantDto;
-import com.lingosphinx.gamification.dto.GoalDefinitionDto;
-import com.lingosphinx.gamification.dto.GoalDto;
+import com.lingosphinx.gamification.domain.*;
+import com.lingosphinx.gamification.dto.*;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
@@ -26,6 +22,25 @@ public interface GoalMapper {
     ContestantDto toDto(Contestant entity);
     @Mapping(target = "experiences", ignore = true)
     Contestant toEntity(ContestantDto dto);
+
+    @Mapping(target = "parent", ignore = true)
+    @Mapping(target = "child.contestant", ignore = true)
+    @Mapping(target = "child.objectives", ignore = true)
+    @Mapping(target = "propagation", ignore = true)
+    ObjectiveDto toDto(Objective entity);
+    @Mapping(target = "parent", ignore = true)
+    @Mapping(target = "child.contestant", ignore = true)
+    @Mapping(target = "child.objectives", ignore = true)
+    @Mapping(target = "propagation", ignore = true)
+    Objective toEntity(ObjectiveDto dto);
+
+
+    @Mapping(target = "parent", ignore = true)
+    @Mapping(target = "child", ignore = true)
+    ObjectiveDefinitionDto toDto(ObjectiveDefinition entity);
+    @Mapping(target = "parent", ignore = true)
+    @Mapping(target = "child", ignore = true)
+    ObjectiveDefinition toEntity(ObjectiveDefinitionDto dto);
 
     List<GoalDto> toDtoList(List<Goal> entities);
 
