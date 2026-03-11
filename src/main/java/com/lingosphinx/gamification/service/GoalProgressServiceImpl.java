@@ -36,7 +36,7 @@ public class GoalProgressServiceImpl implements GoalProgressService {
     @Override
     public void propagate(GoalProgress goalProgress) {
         var goal = goalProgress.getGoal();
-        var objectives = objectiveRepository.findAllByChildAndPropagationIsNull(goal);
+        var objectives = objectiveRepository.findAllByChild(goal);
         objectives.forEach(objective -> {
             var progress = objective.propagate(goalProgress);
             var saved = this.progress(progress);

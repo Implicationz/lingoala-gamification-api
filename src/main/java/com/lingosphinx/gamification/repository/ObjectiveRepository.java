@@ -17,5 +17,5 @@ import java.util.stream.Stream;
 
 public interface ObjectiveRepository extends JpaRepository<Objective, Long>, JpaSpecificationExecutor<Objective> {
     @EntityGraph(attributePaths = {"definition", "parent", "child", "propagation"})
-    Stream<Objective> findAllByChildAndPropagationIsNull(Goal goal);
+    Stream<Objective> findAllByChild(Goal goal);
 }

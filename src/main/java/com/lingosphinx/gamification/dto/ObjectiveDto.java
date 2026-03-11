@@ -11,6 +11,7 @@ import lombok.*;
 @Setter
 public class ObjectiveDto {
 
+    private Long id;
     private ObjectiveDefinitionDto definition;
     private GoalDto parent;
     private GoalDto child;
