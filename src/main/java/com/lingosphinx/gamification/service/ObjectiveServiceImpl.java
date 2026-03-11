@@ -33,6 +33,7 @@ public class ObjectiveServiceImpl implements ObjectiveService {
                 .orElseGet(() -> Goal.fromDefinition(objective.getParent(), child.getContestant()));
         return goal;
     }
+
     @Override
     public void activateParents(Goal goal) {
         log.info("Objective activation started for Goal={}", goal.getId());
@@ -66,5 +67,6 @@ public class ObjectiveServiceImpl implements ObjectiveService {
             objective.setPropagation(propagation);
         }
         objectiveRepository.saveAll(objectives);
+        parentsToSave.forEach(this::activateParents);
     }
 }
