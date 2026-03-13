@@ -41,13 +41,13 @@ public class Objective extends BaseEntity {
                 .parent(parent)
                 .child(child)
                 .build();
-        var progress = child.getProgress();
-        if(ProgressValue.ZERO.isLess(progress)) {
-            var propagation = GoalProgress.of(parent, progress.weighted(objective.getWorth()));
-            parent.apply(propagation);
-            objective.setPropagation(propagation);
-        }
         return objective;
+    }
+
+    public GoalProgress propagation() {
+        var progress = this.child.getProgress();
+        var propagation = GoalProgress.of(this.parent, progress.weighted(this.getWorth()));
+        return propagation;
     }
 
     public double getWorth() {

@@ -17,7 +17,9 @@ public interface GoalProgressMapper {
     GoalProgressDto toDto(GoalProgress entity);
     GoalProgress toEntity(GoalProgressDto dto);
 
+    @Mapping(target = "objectives", ignore = true)
     GoalDto toDto(Goal entity);
+    @Mapping(target = "objectives", ignore = true)
     Goal toEntity(GoalDto dto);
 
     @Mapping(target = "experiences", ignore = true)

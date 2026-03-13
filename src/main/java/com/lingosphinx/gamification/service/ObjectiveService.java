@@ -10,4 +10,7 @@ import java.util.List;
 public interface ObjectiveService {
 
     void activateParents(Goal goal);
+    void propagate(GoalProgress goalProgress);
+
+    void propagate(Objective objective, GoalProgress goalProgress);
 }

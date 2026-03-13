@@ -1,8 +1,6 @@
 package com.lingosphinx.gamification.service;
 
-import com.lingosphinx.gamification.domain.Goal;
 import com.lingosphinx.gamification.domain.GoalProgress;
-import com.lingosphinx.gamification.domain.ObjectiveDefinition;
 import com.lingosphinx.gamification.dto.GoalProgressDto;
 import com.lingosphinx.gamification.event.GoalCompletedEvent;
 import com.lingosphinx.gamification.event.GoalProgressCreatedEvent;
@@ -10,7 +8,6 @@ import com.lingosphinx.gamification.exception.ResourceNotFoundException;
 import com.lingosphinx.gamification.mapper.GoalProgressMapper;
 import com.lingosphinx.gamification.repository.GoalProgressRepository;
 import com.lingosphinx.gamification.repository.GoalRepository;
-import com.lingosphinx.gamification.repository.ObjectiveDefinitionRepository;
 import com.lingosphinx.gamification.repository.ObjectiveRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -29,21 +25,10 @@ public class GoalProgressServiceImpl implements GoalProgressService {
 
     private final GoalRepository goalRepository;
     private final GoalProgressRepository goalProgressRepository;
-    private final ObjectiveRepository objectiveRepository;
     private final GoalProgressMapper goalProgressMapper;
     private final ApplicationEventPublisher eventPublisher;
 
     @Override
-    public void propagate(GoalProgress goalProgress) {
-        var goal = goalProgress.getGoal();
-        var objectives = objectiveRepository.findAllByChild(goal);
-        objectives.forEach(objective -> {
-            var progress = objective.propagate(goalProgress);
-            var saved = this.progress(progress);
-            objective.setPropagation(saved);
-        });
-    }
-
     public GoalProgress progress(GoalProgress goalProgress) {
         var goal = goalProgress.getGoal();
 
@@ -51,7 +36,7 @@ public class GoalProgressServiceImpl implements GoalProgressService {
             return goalProgress;
         }
 
-        eventPublisher.publishEvent(new GoalProgressCreatedEvent(goalProgress));
+        eventPublisher.publishEvent(new GoalProgressCreatedEvent(goalProgressMapper.toDto(goalProgress)));
 
         var wasComplete = goal.isComplete();
         goal.apply(goalProgress);
