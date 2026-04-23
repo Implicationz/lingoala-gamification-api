@@ -33,17 +33,26 @@ public class HabitResetScheduler {
     }
 
     private void scheduleForTimeZone(IanaTimeZone tz) {
-        var now = ZonedDateTime.now(tz.zoneId());
-        var nextMidnight = now.with(LocalTime.MIDNIGHT).plusDays(now.toLocalTime().isAfter(LocalTime.MIDNIGHT) ? 1 : 0);
+        scheduleNextRun(tz);
+    }
 
-        taskScheduler.scheduleAtFixedRate(() -> {
+    private void scheduleNextRun(IanaTimeZone tz) {
+        var now = ZonedDateTime.now(tz.zoneId());
+        var nextMidnight = now.toLocalDate()
+                .plusDays(1)
+                .atStartOfDay(tz.zoneId());
+
+        taskScheduler.schedule(() -> {
             log.info("Midnight in {}: executing reset", tz.zoneId());
             try {
                 habitService.resetAll(tz);
-            }
-            catch (Throwable t) {
+            } catch (Throwable t) {
                 log.error("Error during habit reset for timezone {}", tz.zoneId(), t);
             }
-        }, nextMidnight.toInstant(), Duration.ofDays(1));
+            finally {
+                scheduleNextRun(tz);
+            }
+        }, nextMidnight.toInstant());
     }
+
 }
